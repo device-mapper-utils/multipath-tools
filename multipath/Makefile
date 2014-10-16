@@ -21,6 +21,7 @@ $(EXEC): $(OBJS) $(multipathdir)/libmultipath.so $(mpathcmddir)/libmpathcmd.so
 install:
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(bindir)
 	$(INSTALL_PROGRAM) -m 755 $(EXEC) $(DESTDIR)$(bindir)/
+	$(INSTALL_PROGRAM) -m 755 mpathconf $(DESTDIR)$(bindir)/
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(udevrulesdir)
 	$(INSTALL_PROGRAM) -m 644 11-dm-mpath.rules $(DESTDIR)$(udevrulesdir)
 	$(INSTALL_PROGRAM) -m 644 $(EXEC).rules $(DESTDIR)$(udevrulesdir)/62-multipath.rules
@@ -30,6 +31,7 @@ install:
 	$(INSTALL_PROGRAM) -m 644 $(EXEC).8 $(DESTDIR)$(man8dir)
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(man5dir)
 	$(INSTALL_PROGRAM) -m 644 $(EXEC).conf.5 $(DESTDIR)$(man5dir)
+	$(INSTALL_PROGRAM) -m 644 mpathconf.8 $(DESTDIR)$(man8dir)
 ifneq ($(SCSI_DH_MODULES_PRELOAD),)
 	$(INSTALL_PROGRAM) -m 644 scsi_dh.conf $(DESTDIR)$(modulesloaddir)/scsi_dh.conf
 	for _x in $(SCSI_DH_MODULES_PRELOAD); do echo "$$_x"; done \
@@ -42,8 +44,10 @@ uninstall:
 	$(RM) $(DESTDIR)$(modulesloaddir)/multipath.conf
 	$(RM) $(DESTDIR)$(modulesloaddir)/scsi_dh.conf
 	$(RM) $(DESTDIR)$(libudevdir)/rules.d/62-multipath.rules
+	$(RM) $(DESTDIR)$(bindir)/mpathconf
 	$(RM) $(DESTDIR)$(man8dir)/$(EXEC).8
 	$(RM) $(DESTDIR)$(man5dir)/$(EXEC).conf.5
+	$(RM) $(DESTDIR)$(man8dir)/mpathconf.8
 
 clean: dep_clean
 	$(RM) core *.o $(EXEC)
