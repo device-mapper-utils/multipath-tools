@@ -22,6 +22,7 @@ $(EXEC): $(OBJS) $(multipathdir)/libmultipath.so $(mpathcmddir)/libmpathcmd.so
 install:
 	$(Q)$(INSTALL_PROGRAM) -d $(DESTDIR)$(bindir)
 	$(Q)$(INSTALL_PROGRAM) -m 755 $(EXEC) $(DESTDIR)$(bindir)/
+	$(Q)$(INSTALL_PROGRAM) -m 755 mpathconf $(DESTDIR)$(bindir)/
 	$(Q)$(INSTALL_PROGRAM) -d $(DESTDIR)$(udevrulesdir)
 	$(Q)$(INSTALL_PROGRAM) -m 644 11-dm-mpath.rules $(DESTDIR)$(udevrulesdir)
 	$(Q)$(INSTALL_PROGRAM) -m 644 multipath.rules $(DESTDIR)$(udevrulesdir)/62-multipath.rules
@@ -31,6 +32,7 @@ install:
 	$(Q)$(INSTALL_PROGRAM) -m 644 tmpfiles.conf $(DESTDIR)$(tmpfilesdir)/multipath.conf
 	$(Q)$(INSTALL_PROGRAM) -d $(DESTDIR)$(mandir)/man8
 	$(Q)$(INSTALL_PROGRAM) -m 644 $(EXEC).8 $(DESTDIR)$(mandir)/man8
+	$(Q)$(INSTALL_PROGRAM) -m 644 mpathconf.8 $(DESTDIR)$(mandir)/man8
 	$(Q)$(INSTALL_PROGRAM) -d $(DESTDIR)$(mandir)/man5
 	$(Q)$(INSTALL_PROGRAM) -m 644 $(EXEC).conf.5 $(DESTDIR)$(mandir)/man5
 ifneq ($(SCSI_DH_MODULES_PRELOAD),)
@@ -41,11 +43,13 @@ endif
 
 uninstall:
 	$(Q)$(RM) $(DESTDIR)$(bindir)/$(EXEC)
+	$(Q)$(RM) $(DESTDIR)$(bindir)/mpathconf
 	$(Q)$(RM) $(DESTDIR)$(udevrulesdir)/11-dm-mpath.rules
 	$(Q)$(RM) $(DESTDIR)$(modulesloaddir)/multipath.conf
 	$(Q)$(RM) $(DESTDIR)$(modulesloaddir)/scsi_dh.conf
 	$(Q)$(RM) $(DESTDIR)$(libudevdir)/rules.d/62-multipath.rules
 	$(Q)$(RM) $(DESTDIR)$(mandir)/man8/$(EXEC).8
+	$(Q)$(RM) $(DESTDIR)$(mandir)/man8/mpathconf.8
 	$(Q)$(RM) $(DESTDIR)$(mandir)/man5/$(EXEC).conf.5
 
 clean: dep_clean
