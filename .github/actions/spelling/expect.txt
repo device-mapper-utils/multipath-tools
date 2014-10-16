@@ -127,9 +127,11 @@ Marzinski
 misdetection
 mpath
 mpathb
+mpathconf
 mpathpersist
 mpathvalid
 msecs
+multipathable
 multipathc
 multipathd
 multipathed
@@ -147,6 +149,7 @@ ontap
 OOM
 opensvc
 OPTFLAGS
+outfile
 paramp
 partx
 pathgroup
