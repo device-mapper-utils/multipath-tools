@@ -23,7 +23,7 @@ install:
 	$(INSTALL_PROGRAM) -m 755 $(EXEC) $(DESTDIR)$(bindir)/
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(udevrulesdir)
 	$(INSTALL_PROGRAM) -m 644 11-dm-mpath.rules $(DESTDIR)$(udevrulesdir)
-	$(INSTALL_PROGRAM) -m 644 $(EXEC).rules $(DESTDIR)$(udevrulesdir)/56-multipath.rules
+	$(INSTALL_PROGRAM) -m 644 $(EXEC).rules $(DESTDIR)$(udevrulesdir)/62-multipath.rules
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(modulesloaddir)
 	$(INSTALL_PROGRAM) -m 644 modules-load.conf $(DESTDIR)$(modulesloaddir)/multipath.conf
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(man8dir)
@@ -41,7 +41,7 @@ uninstall:
 	$(RM) $(DESTDIR)$(udevrulesdir)/11-dm-mpath.rules
 	$(RM) $(DESTDIR)$(modulesloaddir)/multipath.conf
 	$(RM) $(DESTDIR)$(modulesloaddir)/scsi_dh.conf
-	$(RM) $(DESTDIR)$(libudevdir)/rules.d/56-multipath.rules
+	$(RM) $(DESTDIR)$(libudevdir)/rules.d/62-multipath.rules
 	$(RM) $(DESTDIR)$(man8dir)/$(EXEC).8
 	$(RM) $(DESTDIR)$(man5dir)/$(EXEC).conf.5
 
