@@ -34,9 +34,9 @@ endif
 # Paths. All these can be overridden on the "make" command line.
 prefix		:=
 # Prefix for binaries
-exec_prefix	:= $(prefix)
+exec_prefix	:= $(prefix)/usr
 # Prefix for non-essential libraries (libdmmp)
-usr_prefix	:= $(prefix)
+usr_prefix	:= $(prefix)/usr
 # Where to install systemd-related files. systemd is usually installed under /usr
 # Note: some systemd installations use separate "prefix" and "rootprefix".
 # In this case, override only unitdir to use systemd's "rootprefix" instead of $(systemd_prefix)
