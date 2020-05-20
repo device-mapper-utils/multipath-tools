@@ -192,6 +192,7 @@ struct config {
 	int find_multipaths_timeout;
 	int marginal_pathgroups;
 	int skip_delegate;
+	int ignore_udev_uid;
 	unsigned int version[3];
 	unsigned int sequence_nr;
 
