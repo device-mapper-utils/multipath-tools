@@ -491,6 +491,13 @@ int count_active_paths(const struct multipath *mpp)
 	return do_pathcount(mpp, states, 2);
 }
 
+int count_active_pending_paths(const struct multipath *mpp)
+{
+	int states[] = {PATH_UP, PATH_GHOST, PATH_PENDING};
+
+	return do_pathcount(mpp, states, 3);
+}
+
 int pathcmp(const struct pathgroup *pgp, const struct pathgroup *cpgp)
 {
 	int i, j;
