@@ -1198,13 +1198,6 @@ ev_remove_path (struct path *pp, struct vectors * vecs, int need_do_map)
 			goto fail;
 		}
 
-		/*
-		 * Make sure mpp->hwe doesn't point to freed memory
-		 * We call extract_hwe_from_path() below to restore mpp->hwe
-		 */
-		if (mpp->hwe == pp->hwe)
-			mpp->hwe = NULL;
-
 		if ((i = find_slot(mpp->paths, (void *)pp)) != -1)
 			vector_del_slot(mpp->paths, i);
 
@@ -1215,9 +1208,6 @@ ev_remove_path (struct path *pp, struct vectors * vecs, int need_do_map)
 		if (VECTOR_SIZE(mpp->paths) == 0 &&
 		    flush_map_nopaths(mpp, vecs))
 			goto out;
-
-		if (mpp->hwe == NULL)
-			extract_hwe_from_path(mpp);
 
 		if (setup_map(mpp, params, PARAMS_SIZE, vecs)) {
 			condlog(0, "%s: failed to setup map for"
