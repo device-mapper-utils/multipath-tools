@@ -2058,7 +2058,8 @@ get_uid (struct path * pp, int path_state, struct udev_device *udev,
 		}
 		if ((!udev_available || (len <= 0 && allow_fallback))
 		    && has_uid_fallback(pp)) {
-			used_fallback = 1;
+			if (udev_available || !(udev && pp->uid_attribute))
+				used_fallback = 1;
 			len = uid_fallback(pp, path_state, &origin);
 		}
 	}
