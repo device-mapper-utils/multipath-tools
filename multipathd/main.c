@@ -1223,7 +1223,6 @@ uev_update_path (struct uevent *uev, struct vectors * vecs)
 	if (pp) {
 		struct multipath *mpp = pp->mpp;
 		char wwid[WWID_SIZE];
-		int fallback;
 
 		if (pp->initialized == INIT_REQUESTED_UDEV) {
 			needs_reinit = 1;
@@ -1235,11 +1234,7 @@ uev_update_path (struct uevent *uev, struct vectors * vecs)
 			goto out;
 
 		strcpy(wwid, pp->wwid);
-		conf = get_multipath_config();
-		fallback = conf->ignore_udev_uid? UID_FALLBACK_FORCE:
-			   UID_FALLBACK_NONE;
-		put_multipath_config(conf);
-		rc = get_uid(pp, pp->state, uev->udev, fallback);
+		rc = get_uid(pp, pp->state, uev->udev, 0);
 
 		if (rc != 0)
 			strcpy(pp->wwid, wwid);

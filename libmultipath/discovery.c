@@ -2010,7 +2010,7 @@ static bool has_uid_fallback(struct path *pp)
 
 int
 get_uid (struct path * pp, int path_state, struct udev_device *udev,
-	 int fallback)
+	 int allow_fallback)
 {
 	char *c;
 	const char *origin = "unknown";
@@ -2043,9 +2043,7 @@ get_uid (struct path * pp, int path_state, struct udev_device *udev,
 		} else
 			len = strlen(pp->wwid);
 		origin = "callout";
-	} else if (fallback == UID_FALLBACK_FORCE)
-		len = uid_fallback(pp, path_state, &origin);
-	else {
+	} else {
 		bool udev_available = udev && pp->uid_attribute
 			&& *pp->uid_attribute;
 
@@ -2058,9 +2056,8 @@ get_uid (struct path * pp, int path_state, struct udev_device *udev,
 			else
 				origin = "udev";
 		}
-		if ((!udev_available ||
-		     (len <= 0 && fallback == UID_FALLBACK_ALLOW)) &&
-		    has_uid_fallback(pp)) {
+		if ((!udev_available || (len <= 0 && allow_fallback))
+		    && has_uid_fallback(pp)) {
 			used_fallback = 1;
 			len = uid_fallback(pp, path_state, &origin);
 		}
@@ -2200,10 +2197,8 @@ int pathinfo(struct path *pp, struct config *conf, int mask)
 	}
 
 	if ((mask & DI_WWID) && !strlen(pp->wwid)) {
-		int fallback = conf->ignore_udev_uid? UID_FALLBACK_FORCE :
-			       (pp->retriggers >= conf->retrigger_tries)?
-			       UID_FALLBACK_ALLOW : UID_FALLBACK_NONE;
-		get_uid(pp, path_state, pp->udev, fallback);
+		get_uid(pp, path_state, pp->udev,
+			(pp->retriggers >= conf->retrigger_tries));
 		if (!strlen(pp->wwid)) {
 			if (pp->bus == SYSFS_BUS_UNDEF)
 				return PATHINFO_SKIPPED;
