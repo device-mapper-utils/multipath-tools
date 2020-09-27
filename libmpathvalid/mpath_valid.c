@@ -15,9 +15,7 @@
 #include "mpath_cmd.h"
 #include "valid.h"
 #include "mpath_valid.h"
-
-static struct config default_config = { .verbosity = -1 };
-struct config *mpathvalid_conf = &default_config;
+#include "debug.h"
 
 static unsigned int get_conf_mode(struct config *conf)
 {
@@ -68,38 +66,70 @@ static int convert_result(int result) {
 }
 
 int
-mpathvalid_init(int verbosity)
+mpathvalid_init(int verbosity, int log_style)
 {
 	unsigned int version[3];
 	struct config *conf;
 
-	default_config.verbosity = verbosity;
-	skip_libmp_dm_init();
-	conf = load_config(DEFAULT_CONFIGFILE);
-	if (!conf)
+	logsink = log_style;
+	if (libmultipath_init())
 		return -1;
+	conf = get_multipath_config();
 	conf->verbosity = verbosity;
-	if (dm_prereq(version))
-		goto fail;
-	memcpy(conf->version, version, sizeof(version));
+	put_multipath_config(conf);
 
-	mpathvalid_conf = conf;
+	skip_libmp_dm_init();
+	if (init_config(DEFAULT_CONFIGFILE))
+		goto fail;
+	if (dm_prereq(version))
+		goto fail_config;
+
+	conf = get_multipath_config();
+	conf->verbosity = verbosity;
+	memcpy(conf->version, version, sizeof(version));
+	put_multipath_config(conf);
 	return 0;
+
+fail_config:
+	uninit_config();
 fail:
-	free_config(conf);
+	libmultipath_exit();
 	return -1;
+}
+
+int
+mpathvalid_reload_config(void)
+{
+	int verbosity;
+	unsigned int version[3];
+	struct config *conf;
+
+	conf = get_multipath_config();
+	memcpy(version, conf->version, sizeof(version));
+	verbosity = conf->verbosity;
+	put_multipath_config(conf);
+
+	uninit_config();
+
+	conf = get_multipath_config();
+	conf->verbosity = verbosity;
+	put_multipath_config(conf);
+
+	if (init_config(DEFAULT_CONFIGFILE))
+		return -1;
+
+	conf = get_multipath_config();
+	conf->verbosity = verbosity;
+	memcpy(conf->version, version, sizeof(version));
+	put_multipath_config(conf);
+	return 0;
 }
 
 int
 mpathvalid_exit(void)
 {
-	struct config *conf = mpathvalid_conf;
-
-	default_config.verbosity = -1;
-	if (mpathvalid_conf == &default_config)
-		return 0;
-	mpathvalid_conf = &default_config;
-	free_config(conf);
+	uninit_config();
+	libmultipath_exit();
 	return 0;
 }
 
@@ -121,8 +151,9 @@ mpathvalid_is_path(const char *name, unsigned int mode, char **wwid,
 
 	if (!name || mode >= MPATH_MAX_MODE)
 		return r;
-
 	if (nr_paths > 0 && !path_wwids)
+		return r;
+	if (!udev)
 		return r;
 
 	pp = alloc_path();
@@ -136,7 +167,7 @@ mpathvalid_is_path(const char *name, unsigned int mode, char **wwid,
 	}
 
 	conf = get_multipath_config();
-	if (!conf || conf == &default_config)
+	if (!conf)
 		goto out_wwid;
 	if (mode != MPATH_DEFAULT)
 		set_conf_mode(conf, mode);

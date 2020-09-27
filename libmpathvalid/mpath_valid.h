@@ -42,14 +42,18 @@ enum mpath_valid_result {
 	MPATH_IS_MAYBE_VALID,
 };
 
-struct config;
-extern struct config *mpathvalid_conf;
-int mpathvalid_init(int verbosity);
+enum mpath_valid_log_style {
+	MPATH_LOG_STDIO = -1,
+	MPATH_LOG_STDIO_TIMESTAMP,
+	MPATH_LOG_SYSLOG,
+};
+
+int mpathvalid_init(int verbosity, int log_style);
+int mpathvalid_reload_config(void);
 int mpathvalid_exit(void);
 unsigned int mpathvalid_get_mode(void);
 int mpathvalid_is_path(const char *name, unsigned int mode, char **wwid,
 		       const char **path_wwids, unsigned int nr_paths);
-
 
 #ifdef __cplusplus
 }

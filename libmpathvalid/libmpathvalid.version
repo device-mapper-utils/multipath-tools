@@ -1,7 +1,7 @@
 MPATH_1.0 {
 	global:
-		mpathvalid_conf;
 		mpathvalid_init;
+		mpathvalid_reload_config;
 		mpathvalid_exit;
 		mpathvalid_is_path;
 		mpathvalid_get_mode;
