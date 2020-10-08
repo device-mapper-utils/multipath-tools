@@ -1266,6 +1266,31 @@ fetch_vpd_page(int fd, int pg, unsigned char *buff)
 	return buff_len;
 }
 
+/* heavily based on sg_inq.c from sg3_utils */
+bool
+is_vpd_page_supported(int fd, int pg)
+{
+	int i, len, buff_len;
+	unsigned char buff[4096];
+
+	buff_len = fetch_vpd_page(fd, 0x00, buff);
+	if (buff_len < 0)
+		return false;
+	if (buff_len < 4) {
+		condlog(3, "VPD page 00h too short");
+		return false;
+	}
+
+	len = buff[3] + 4;
+	if (len > buff_len)
+		condlog(3, "vpd page 00h trucated, expected %d, have %d",
+			len, buff_len);
+	for (i = 4; i < len; ++i)
+		if (buff[i] == pg)
+			return true;
+	return false;
+}
+
 int
 get_vpd_sgio (int fd, int pg, int vend_id, char * str, int maxlen)
 {
