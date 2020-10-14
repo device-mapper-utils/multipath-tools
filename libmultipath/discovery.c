@@ -577,6 +577,42 @@ sysfs_get_asymmetric_access_state(struct path *pp, char *buff, int buflen)
 	return !!preferred;
 }
 
+static int
+sysfs_set_eh_deadline(struct multipath *mpp, struct path *pp)
+{
+	struct udev_device *hostdev;
+	char host_name[HOST_NAME_LEN], value[16];
+	int ret;
+
+	if (mpp->eh_deadline == EH_DEADLINE_UNSET)
+		return 0;
+
+	sprintf(host_name, "host%d", pp->sg_id.host_no);
+	hostdev = udev_device_new_from_subsystem_sysname(udev,
+			"scsi_host", host_name);
+	if (!hostdev)
+		return 1;
+
+	if (mpp->eh_deadline == EH_DEADLINE_OFF)
+		sprintf(value, "off");
+	else if (mpp->eh_deadline == EH_DEADLINE_ZERO)
+		sprintf(value, "0");
+	else
+		snprintf(value, 16, "%u", mpp->eh_deadline);
+
+	ret = sysfs_attr_set_value(hostdev, "eh_deadline",
+				   value, strlen(value));
+	/*
+	 * not all scsi drivers support setting eh_deadline, so failing
+	 * is totally reasonable
+	 */
+	if (ret <= 0)
+		condlog(4, "%s: failed to set eh_deadline to %s, error %d", udev_device_get_sysname(hostdev), value, -ret);
+
+	udev_device_unref(hostdev);
+	return (ret <= 0);
+}
+
 static void
 sysfs_set_rport_tmo(struct multipath *mpp, struct path *pp)
 {
@@ -787,16 +823,24 @@ sysfs_set_scsi_tmo (struct multipath *mpp, unsigned int checkint)
 			mpp->alias, mpp->fast_io_fail);
 		mpp->fast_io_fail = MP_FAST_IO_FAIL_OFF;
 	}
-	if (!mpp->dev_loss && mpp->fast_io_fail == MP_FAST_IO_FAIL_UNSET)
+	if (!mpp->dev_loss && mpp->fast_io_fail == MP_FAST_IO_FAIL_UNSET &&
+	    mpp->eh_deadline == EH_DEADLINE_UNSET)
 		return 0;
 
 	vector_foreach_slot(mpp->paths, pp, i) {
-		if (pp->sg_id.proto_id == SCSI_PROTOCOL_FCP)
-			sysfs_set_rport_tmo(mpp, pp);
-		if (pp->sg_id.proto_id == SCSI_PROTOCOL_ISCSI)
-			sysfs_set_session_tmo(mpp, pp);
-		if (pp->sg_id.proto_id == SCSI_PROTOCOL_SAS)
-			sysfs_set_nexus_loss_tmo(mpp, pp);
+		if (pp->bus != SYSFS_BUS_SCSI)
+			continue;
+
+		if (mpp->dev_loss ||
+		    mpp->fast_io_fail != MP_FAST_IO_FAIL_UNSET) {
+			if (pp->sg_id.proto_id == SCSI_PROTOCOL_FCP)
+				sysfs_set_rport_tmo(mpp, pp);
+			else if (pp->sg_id.proto_id == SCSI_PROTOCOL_ISCSI)
+				sysfs_set_session_tmo(mpp, pp);
+			else if (pp->sg_id.proto_id == SCSI_PROTOCOL_SAS)
+				sysfs_set_nexus_loss_tmo(mpp, pp);
+		}
+		sysfs_set_eh_deadline(mpp, pp);
 	}
 	return 0;
 }
