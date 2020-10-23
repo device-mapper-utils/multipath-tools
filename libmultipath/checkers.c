@@ -21,6 +21,7 @@ struct checker_class {
 	void (*reset)(void);		     /* to reset the global variables */
 	const char **msgtable;
 	short msgtable_size;
+	int keep_dso;
 };
 
 char *checker_state_names[] = {
@@ -69,7 +70,7 @@ void free_checker_class(struct checker_class *c)
 	list_del(&c->node);
 	if (c->reset)
 		c->reset();
-	if (c->handle) {
+	if (c->handle && !c->keep_dso) {
 		if (dlclose(c->handle) != 0) {
 			condlog(0, "Cannot unload checker %s: %s",
 				c->name, dlerror());
@@ -190,6 +191,13 @@ done:
 out:
 	free_checker_class(c);
 	return NULL;
+}
+
+void checker_keep_dso(struct checker * c)
+{
+	if (!c || !c->cls)
+		return;
+	c->cls->keep_dso = 1;
 }
 
 void checker_set_fd (struct checker * c, int fd)
