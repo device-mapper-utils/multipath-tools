@@ -1239,11 +1239,10 @@ get_vpd_sysfs (struct udev_device *parent, int pg, char * str, int maxlen)
 	return len;
 }
 
-int
-get_vpd_sgio (int fd, int pg, int vend_id, char * str, int maxlen)
+static int
+fetch_vpd_page(int fd, int pg, unsigned char *buff)
 {
-	int len, buff_len;
-	unsigned char buff[4096];
+	int buff_len;
 
 	memset(buff, 0x0, 4096);
 	if (sgio_get_vpd(buff, 4096, fd, pg) < 0) {
@@ -1264,6 +1263,18 @@ get_vpd_sgio (int fd, int pg, int vend_id, char * str, int maxlen)
 		condlog(3, "vpd pg%02x page truncated", pg);
 		buff_len = 4096;
 	}
+	return buff_len;
+}
+
+int
+get_vpd_sgio (int fd, int pg, int vend_id, char * str, int maxlen)
+{
+	int len, buff_len;
+	unsigned char buff[4096];
+
+	buff_len = fetch_vpd_page(fd, pg, buff);
+	if (buff_len < 0)
+		return buff_len;
 	if (pg == 0x80)
 		len = parse_vpd_pg80(buff, str, maxlen);
 	else if (pg == 0x83)
