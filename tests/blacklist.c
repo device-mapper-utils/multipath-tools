@@ -378,7 +378,6 @@ static void test_property_missing(void **state)
 {
 	static struct udev_device udev = { "sdb", { "ID_FOO", "ID_BAZ", "ID_BAR", "ID_SERIAL", NULL } };
 	conf.blist_property = blist_property_wwn;
-	expect_condlog(3, "sdb: blacklisted, udev property missing\n");
 	assert_int_equal(filter_property(&conf, &udev, 3, "ID_SERIAL"),
 			 MATCH_NOTHING);
 	assert_int_equal(filter_property(&conf, &udev, 3, "ID_BLAH"),
