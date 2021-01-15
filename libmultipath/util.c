@@ -469,3 +469,8 @@ void close_fd(void *arg)
 {
 	close((long)arg);
 }
+
+void cleanup_mutex(void *arg)
+{
+	pthread_mutex_unlock(arg);
+}
