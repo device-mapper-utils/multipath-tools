@@ -38,9 +38,9 @@ If
 already exists, mpathconf will edit it. If it does not exist, mpathconf will
 create a default file with
 .B user_friendly_names
-and
+set and
 .B find_multipaths
-set. To disable these, use the
+set to \fByes\fP. To disable these, use the
 .B --user_friendly_names n
 and
 .B --find_multipaths n
@@ -77,13 +77,13 @@ to the
 defaults section. If set to \fBn\fP, this removes the line, if present. This
 command can be used along with any other command.
 .TP
-.B --find_multipaths\fP { \fBy\fP | \fBn\fP }
-If set to \fBy\fP, this adds the line
-.B find_multipaths yes
+.B --find_multipaths\fP { \fByes\fP | \fBno\fP | \fBstrict\fP | \fBgreedy\fP | \fBsmart\fP }
+If set to \fB<value>\fP, this adds the line
+.B find_multipaths <value>
 to the
 .B /etc/multipath.conf
-defaults section. If set to \fBn\fP, this removes the line, if present. This
-command can be used along with any other command.
+defaults section. This command can be used along with any other command.
+\fBy\fP and \fBn\fP can be used instead of \fByes\fP and \fBno\fP.
 .TP
 .B --property_blacklist \fP { \fBy\fP | \fBn\fP }
 If set to \fBy\fP, this adds the line
