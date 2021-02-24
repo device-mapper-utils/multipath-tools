@@ -252,6 +252,12 @@ enum eh_deadline_states {
 	EH_DEADLINE_ZERO = UOZ_ZERO,
 };
 
+enum recheck_wwid_states {
+	RECHECK_WWID_UNDEF = YNU_UNDEF,
+	RECHECK_WWID_OFF = YNU_NO,
+	RECHECK_WWID_ON = YNU_YES,
+};
+
 struct vpd_vendor_page {
 	int pg;
 	const char *name;
@@ -326,6 +332,7 @@ struct path {
 	int find_multipaths_timeout;
 	int marginal;
 	int vpd_vendor_id;
+	int recheck_wwid;
 	/* configlet pointers */
 	vector hwe;
 	struct gen_path generic_path;

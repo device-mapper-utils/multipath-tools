@@ -49,4 +49,6 @@ int update_multipath (struct vectors *vecs, char *mapname, int reset);
 int update_path_groups(struct multipath *mpp, struct vectors *vecs,
 		       int refresh);
 
+void handle_path_wwid_change(struct path *pp, struct vectors *vecs);
+bool check_path_wwid_change(struct path *pp);
 #endif /* MAIN_H */

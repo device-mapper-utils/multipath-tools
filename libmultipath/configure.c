@@ -506,8 +506,8 @@ trigger_udev_change(const struct multipath *mpp)
 	udev_device_unref(udd);
 }
 
-static void trigger_partitions_udev_change(struct udev_device *dev,
-					   const char *action, int len)
+void trigger_partitions_udev_change(struct udev_device *dev,
+				    const char *action, int len)
 {
 	struct udev_enumerate *part_enum;
 	struct udev_list_entry *item;
