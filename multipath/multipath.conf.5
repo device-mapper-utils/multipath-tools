@@ -638,7 +638,7 @@ Specify the timeout to use for path checkers and prioritizers, in seconds.
 Only prioritizers that issue scsi commands use checker_timeout. Checkers
 that support an asynchronous mode (\fItur\fR and \fIdirectio\fR), will
 return shortly after being called by multipathd, regardless of whether the
-storage array responds. If the storage array hasn't responded, mulitpathd will
+storage array responds. If the storage array hasn't responded, multipathd will
 check for a response every second, until \fIchecker_timeout\fR seconds have
 elapsed.
 .RS
