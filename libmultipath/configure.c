@@ -1043,7 +1043,8 @@ deadmap (struct multipath * mpp)
 	return 1; /* dead */
 }
 
-int check_daemon(void)
+extern int
+check_daemon(void)
 {
 	int fd;
 	char *reply;
@@ -1097,6 +1098,8 @@ int coalesce_paths (struct vectors * vecs, vector newmp, char * refwwid,
 	struct config *conf;
 	int allow_queueing;
 	uint64_t *size_mismatch_seen;
+	bool map_processed = false;
+	bool no_daemon = false;
 
 	/* ignore refwwid if it's empty */
 	if (refwwid && !strlen(refwwid))
@@ -1239,7 +1242,9 @@ int coalesce_paths (struct vectors * vecs, vector newmp, char * refwwid,
 		conf = get_multipath_config();
 		allow_queueing = conf->allow_queueing;
 		put_multipath_config(conf);
-		if (!is_daemon && !allow_queueing && !check_daemon()) {
+		if (!is_daemon && !allow_queueing &&
+		    (no_daemon || !check_daemon())) {
+			no_daemon = true;
 			if (mpp->no_path_retry != NO_PATH_RETRY_UNDEF &&
 			    mpp->no_path_retry != NO_PATH_RETRY_FAIL)
 				condlog(3, "%s: multipathd not running, unset "
@@ -1267,6 +1272,7 @@ int coalesce_paths (struct vectors * vecs, vector newmp, char * refwwid,
 			else
 				remove_map(mpp, vecs, 0);
 		}
+		map_processed = true;
 	}
 	/*
 	 * Flush maps with only dead paths (ie not in sysfs)
@@ -1292,6 +1298,9 @@ int coalesce_paths (struct vectors * vecs, vector newmp, char * refwwid,
 				condlog(2, "%s: remove (dead)", alias);
 		}
 	}
+	if (map_processed && !is_daemon && (no_daemon || !check_daemon()))
+		condlog(2, "multipath devices exist, but multipathd service is not running");
+
 	ret = CP_OK;
 out:
 	free(size_mismatch_seen);
