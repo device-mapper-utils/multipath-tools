@@ -629,7 +629,8 @@ int mpath_prout_common(struct multipath *mpp,int rq_servact, int rq_scope,
 			return ret ;
 		}
 	}
-	return MPATH_PR_SUCCESS;
+	condlog (0, "%s: no path available", mpp->wwid);
+	return MPATH_PR_DMMP_ERROR;
 }
 
 int send_prout_activepath(char * dev, int rq_servact, int rq_scope,
@@ -687,6 +688,11 @@ int mpath_prout_rel(struct multipath *mpp,int rq_servact, int rq_scope,
 		return MPATH_PR_DMMP_ERROR;
 
 	active_pathcount = pathcount (mpp, PATH_UP) + pathcount (mpp, PATH_GHOST);
+
+	if (active_pathcount == 0) {
+		condlog (0, "%s: no path available", mpp->wwid);
+		return MPATH_PR_DMMP_ERROR;
+	}
 
 	struct threadinfo thread[active_pathcount];
 	memset(thread, 0, sizeof(thread));
