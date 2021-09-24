@@ -42,7 +42,7 @@
 
 /* keyword definition */
 typedef int print_fn(struct config *, char *, int, const void *);
-typedef int handler_fn(struct config *, vector);
+typedef int handler_fn(struct config *, vector, const char *file, int line_nr);
 
 struct keyword {
 	char *string;
