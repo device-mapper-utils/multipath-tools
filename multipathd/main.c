@@ -1256,6 +1256,35 @@ fail:
 	return PATH_REMOVE_FAILED;
 }
 
+static bool
+needs_ro_update(struct multipath *mpp, int ro)
+{
+	struct pathgroup * pgp;
+	struct path * pp;
+	unsigned int i, j;
+	struct dm_info *dmi = NULL;
+
+	if (!mpp || ro < 0)
+		return false;
+	dm_get_info(mpp->alias, &dmi);
+	if (!dmi) /* assume we do need to reload the device */
+		return true;
+	if (dmi->read_only == ro) {
+		free(dmi);
+		return false;
+	}
+	free(dmi);
+	if (ro == 1)
+		return true;
+	vector_foreach_slot (mpp->pg, pgp, i) {
+		vector_foreach_slot (pgp->paths, pp, j) {
+			if (sysfs_get_ro(pp) == 1)
+				return false;
+		}
+	}
+	return true;
+}
+
 static int
 uev_update_path (struct uevent *uev, struct vectors * vecs)
 {
@@ -1321,7 +1350,7 @@ uev_update_path (struct uevent *uev, struct vectors * vecs)
 		}
 
 		ro = uevent_get_disk_ro(uev);
-		if (mpp && ro >= 0) {
+		if (needs_ro_update(mpp, ro)) {
 			condlog(2, "%s: update path write_protect to '%d' (uevent)", uev->kernel, ro);
 
 			if (mpp->wait_for_udev)
