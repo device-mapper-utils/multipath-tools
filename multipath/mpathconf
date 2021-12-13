@@ -496,7 +496,15 @@ if [ "$PROPERTY" = "n" ]; then
 		CHANGED_CONFIG=1
 	fi
 elif [ "$PROPERTY" = "y" ]; then
-	if [ -z "$HAVE_PROPERTY" ]; then
+	if [ -z "$HAVE_PROPERTY" -a -z "$HAVE_EXCEPTIONS" ]; then
+		cat >> $TMPFILE << _EOF_
+
+blacklist_exceptions {
+	property "(SCSI_IDENT_|ID_WWN)"
+}
+_EOF_
+		CHANGED_CONFIG=1
+	elif [ -z "$HAVE_PROPERTY" ]; then
 		sed -i '/^blacklist_exceptions[[:space:]]*{/ a\
 	property "(SCSI_IDENT_|ID_WWN)"
 ' $TMPFILE
