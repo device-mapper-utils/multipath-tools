@@ -292,3 +292,8 @@ LIBMULTIPATH_9.1.0 {
 global:
 	sysfs_get_ro;
 } LIBMULTIPATH_9.0.0;
+
+LIBMULTIPATH_9.1.1 {
+global:
+	trigger_path_udev_change;
+} LIBMULTIPATH_9.1.0;
