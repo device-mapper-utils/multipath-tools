@@ -474,14 +474,11 @@ dm_addmap (int task, const char *target, struct multipath *mpp,
 		dm_task_set_ro(dmt);
 
 	if (task == DM_DEVICE_CREATE) {
-		prefixed_uuid = MALLOC(UUID_PREFIX_LEN +
-				       strlen(mpp->wwid) + 1);
-		if (!prefixed_uuid) {
+		if (asprintf(&prefixed_uuid, UUID_PREFIX "%s", mpp->wwid) < 0) {
 			condlog(0, "cannot create prefixed uuid : %s",
 				strerror(errno));
 			goto addout;
 		}
-		sprintf(prefixed_uuid, UUID_PREFIX "%s", mpp->wwid);
 		if (!dm_task_set_uuid(dmt, prefixed_uuid))
 			goto freeout;
 		dm_task_skip_lockfs(dmt);
@@ -517,7 +514,7 @@ dm_addmap (int task, const char *target, struct multipath *mpp,
 			libmp_udev_wait(cookie);
 freeout:
 	if (prefixed_uuid)
-		FREE(prefixed_uuid);
+		free(prefixed_uuid);
 
 addout:
 	dm_task_destroy (dmt);
