@@ -101,6 +101,13 @@ to the
 defaults section. if set to \fBy\fP, this removes the line, if present. This
 command can be used along with any other command.
 .TP
+.B --option \fB<option_name>:[<value>]\fP
+Sets the defaults section option \fB<option_name>\fP to \fB<value>\fP. If the
+option was not previously set in the defaults section, it is added. If it was
+set, its value is changed to \fB<value>\fP. If \fB<value>\fP is left blank,
+then the option is removed from the defaults section, if was set there. This
+command can be used along with any other command.
+.TP
 .B --outfile \fB<filename>\fP
 Write the resulting multipath configuration to \fB<filename>\fP instead of
 \fB/etc/multipath.conf\fP.
