@@ -77,6 +77,15 @@ to the
 defaults section. If set to \fBn\fP, this removes the line, if present. This
 command can be used along with any other command.
 .TP
+.B --recheck_wwid \fP { \fBy\fP | \fBn\fP }
+If set to \fBy\fP, this adds the line
+.B recheck_wwid yes
+to the
+.B /etc/multipath.conf
+defaults section, or sets an existing line to \fByes\fP. If set to \fBn\fP, this
+sets an existing \fBrecheck_wwid\fP line to \fBno\fP. This command can be used
+along with any other command.
+.TP
 .B --find_multipaths\fP { \fByes\fP | \fBno\fP | \fBstrict\fP | \fBgreedy\fP | \fBsmart\fP }
 If set to \fB<value>\fP, this adds the line
 .B find_multipaths <value>
