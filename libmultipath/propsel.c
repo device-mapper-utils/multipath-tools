@@ -85,6 +85,8 @@ static const char cmdline_origin[] =
 	"(setting: multipath command line [-p] flag)";
 static const char autodetect_origin[] =
 	"(setting: storage device autodetected)";
+static const char fpin_marginal_path_origin[] =
+	"(setting: overridden by marginal_path_fpin)";
 static const char marginal_path_origin[] =
 	"(setting: implied by marginal_path check)";
 static const char delay_watch_origin[] =
@@ -1052,9 +1054,12 @@ int select_san_path_err_threshold(struct config *conf, struct multipath *mp)
 	const char *origin;
 	char buff[12];
 
-	if (marginal_path_check_enabled(mp)) {
+	if (marginal_path_check_enabled(mp) || (conf->marginal_pathgroups == MARGINAL_PATHGROUP_FPIN)) {
 		mp->san_path_err_threshold = NU_NO;
-		origin = marginal_path_origin;
+		if (conf->marginal_pathgroups == MARGINAL_PATHGROUP_FPIN)
+			origin = fpin_marginal_path_origin;
+		else
+			origin = marginal_path_origin;
 		goto out;
 	}
 	mp_set_mpe(san_path_err_threshold);
@@ -1075,9 +1080,12 @@ int select_san_path_err_forget_rate(struct config *conf, struct multipath *mp)
 	const char *origin;
 	char buff[12];
 
-	if (marginal_path_check_enabled(mp)) {
+	if (marginal_path_check_enabled(mp) || (conf->marginal_pathgroups == MARGINAL_PATHGROUP_FPIN)) {
 		mp->san_path_err_forget_rate = NU_NO;
-		origin = marginal_path_origin;
+		if (conf->marginal_pathgroups == MARGINAL_PATHGROUP_FPIN)
+			origin = fpin_marginal_path_origin;
+		else
+			origin = marginal_path_origin;
 		goto out;
 	}
 	mp_set_mpe(san_path_err_forget_rate);
@@ -1099,9 +1107,12 @@ int select_san_path_err_recovery_time(struct config *conf, struct multipath *mp)
 	const char *origin;
 	char buff[12];
 
-	if (marginal_path_check_enabled(mp)) {
+	if (marginal_path_check_enabled(mp) || (conf->marginal_pathgroups == MARGINAL_PATHGROUP_FPIN)) {
 		mp->san_path_err_recovery_time = NU_NO;
-		origin = marginal_path_origin;
+		if (conf->marginal_pathgroups == MARGINAL_PATHGROUP_FPIN)
+			origin = fpin_marginal_path_origin;
+		else
+			origin = marginal_path_origin;
 		goto out;
 	}
 	mp_set_mpe(san_path_err_recovery_time);
@@ -1123,6 +1134,12 @@ int select_marginal_path_err_sample_time(struct config *conf, struct multipath *
 	const char *origin;
 	char buff[12];
 
+	if (conf->marginal_pathgroups == MARGINAL_PATHGROUP_FPIN) {
+		mp->marginal_path_err_sample_time = NU_NO;
+		origin = fpin_marginal_path_origin;
+		goto out;
+	}
+
 	mp_set_mpe(marginal_path_err_sample_time);
 	mp_set_ovr(marginal_path_err_sample_time);
 	mp_set_hwe(marginal_path_err_sample_time);
@@ -1140,6 +1157,12 @@ int select_marginal_path_err_rate_threshold(struct config *conf, struct multipat
 {
 	const char *origin;
 	char buff[12];
+
+	if (conf->marginal_pathgroups == MARGINAL_PATHGROUP_FPIN) {
+		mp->marginal_path_err_rate_threshold = NU_NO;
+		origin = fpin_marginal_path_origin;
+		goto out;
+	}
 
 	mp_set_mpe(marginal_path_err_rate_threshold);
 	mp_set_ovr(marginal_path_err_rate_threshold);
@@ -1159,6 +1182,12 @@ int select_marginal_path_err_recheck_gap_time(struct config *conf, struct multip
 	const char *origin;
 	char buff[12];
 
+	if (conf->marginal_pathgroups == MARGINAL_PATHGROUP_FPIN) {
+		mp->marginal_path_err_recheck_gap_time = NU_NO;
+		origin = fpin_marginal_path_origin;
+		goto out;
+	}
+
 	mp_set_mpe(marginal_path_err_recheck_gap_time);
 	mp_set_ovr(marginal_path_err_recheck_gap_time);
 	mp_set_hwe(marginal_path_err_recheck_gap_time);
@@ -1176,6 +1205,12 @@ int select_marginal_path_double_failed_time(struct config *conf, struct multipat
 {
 	const char *origin;
 	char buff[12];
+
+	if (conf->marginal_pathgroups == MARGINAL_PATHGROUP_FPIN) {
+		mp->marginal_path_double_failed_time = NU_NO;
+		origin = fpin_marginal_path_origin;
+		goto out;
+	}
 
 	mp_set_mpe(marginal_path_double_failed_time);
 	mp_set_ovr(marginal_path_double_failed_time);

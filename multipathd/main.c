@@ -16,6 +16,7 @@
 #include <linux/oom.h>
 #include <libudev.h>
 #include <urcu.h>
+#include "fpin.h"
 #ifdef USE_SYSTEMD
 #include <systemd/sd-daemon.h>
 #endif
@@ -2704,7 +2705,9 @@ reconfigure (struct vectors * vecs)
 	conf->sequence_nr = old->sequence_nr + 1;
 	rcu_assign_pointer(multipath_conf, conf);
 	call_rcu(&old->rcu, rcu_free_config);
-
+#ifdef FPIN_EVENT_HANDLER
+	fpin_clean_marginal_dev_list(NULL);
+#endif
 	configure(vecs);
 
 
@@ -2878,7 +2881,8 @@ set_oom_adj (void)
 static int
 child (__attribute__((unused)) void *param)
 {
-	pthread_t check_thr, uevent_thr, uxlsnr_thr, uevq_thr, dmevent_thr;
+	pthread_t check_thr, uevent_thr, uxlsnr_thr, uevq_thr, dmevent_thr,
+		  fpin_thr, fpin_consumer_thr;
 	pthread_attr_t log_attr, misc_attr, uevent_attr;
 	struct vectors * vecs;
 	struct multipath * mpp;
@@ -2892,6 +2896,7 @@ child (__attribute__((unused)) void *param)
 	char *envp;
 	int queue_without_daemon;
 	enum daemon_status state;
+	int fpin_marginal_paths = 0;
 
 	mlockall(MCL_CURRENT | MCL_FUTURE);
 	signal_init();
@@ -2959,7 +2964,10 @@ child (__attribute__((unused)) void *param)
 
 	setscheduler();
 	set_oom_adj();
-
+#ifdef FPIN_EVENT_HANDLER
+	if (conf->marginal_pathgroups == MARGINAL_PATHGROUP_FPIN)
+		fpin_marginal_paths = 1;
+#endif
 	/*
 	 * Startup done, invalidate configuration
 	 */
@@ -3020,6 +3028,19 @@ child (__attribute__((unused)) void *param)
 		condlog(0, "failed to create uevent dispatcher: %d", rc);
 		goto failed;
 	}
+	if (fpin_marginal_paths) {
+		if ((rc = pthread_create(&fpin_thr, &misc_attr,
+			fpin_fabric_notification_receiver, NULL))) {
+			condlog(0, "failed to create the fpin receiver thread: %d", rc);
+			goto failed;
+		}
+
+		if ((rc = pthread_create(&fpin_consumer_thr,
+			&misc_attr, fpin_els_li_consumer, vecs))) {
+			condlog(0, "failed to create the fpin consumer thread thread: %d", rc);
+			goto failed;
+		}
+	}
 	pthread_attr_destroy(&misc_attr);
 
 	while (1) {
@@ -3070,6 +3091,10 @@ child (__attribute__((unused)) void *param)
 	pthread_cancel(uevq_thr);
 	if (poll_dmevents)
 		pthread_cancel(dmevent_thr);
+	if (fpin_marginal_paths) {
+		pthread_cancel(fpin_thr);
+		pthread_cancel(fpin_consumer_thr);
+	}
 
 	pthread_join(check_thr, NULL);
 	pthread_join(uevent_thr, NULL);
@@ -3077,6 +3102,10 @@ child (__attribute__((unused)) void *param)
 	pthread_join(uevq_thr, NULL);
 	if (poll_dmevents)
 		pthread_join(dmevent_thr, NULL);
+	if (fpin_marginal_paths) {
+		pthread_join(fpin_thr, NULL);
+		pthread_join(fpin_consumer_thr, NULL);
+	}
 
 	stop_io_err_stat_thread();
 

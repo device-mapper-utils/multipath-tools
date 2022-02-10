@@ -1,5 +1,9 @@
 include ../Makefile.inc
 
+ifneq ($(call check_var,ELS_DTAG_LNK_INTEGRITY,/usr/include/scsi/fc/fc_els.h),0)
+	CFLAGS += -DFPIN_EVENT_HANDLER
+	FPIN_SUPPORT = 1
+endif
 #
 # debugging stuff
 #
@@ -27,6 +31,12 @@ endif
 
 OBJS = main.o pidfile.o uxlsnr.o uxclnt.o cli.o cli_handlers.o waiter.o \
        dmevents.o
+
+ifeq ($(FPIN_SUPPORT),1)
+OBJS += fpin_handlers.o
+endif
+
+
 
 EXEC = multipathd
 

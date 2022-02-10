@@ -128,6 +128,12 @@ enum find_multipaths_states {
 	__FIND_MULTIPATHS_LAST,
 };
 
+enum marginal_pathgroups_mode {
+	MARGINAL_PATHGROUP_OFF = YN_NO,
+	MARGINAL_PATHGROUP_ON = YN_YES,
+	MARGINAL_PATHGROUP_FPIN,
+};
+
 enum flush_states {
 	FLUSH_UNDEF = YNU_UNDEF,
 	FLUSH_DISABLED = YNU_NO,
@@ -429,6 +435,7 @@ struct multipath {
 	unsigned char prflag;
 	int all_tg_pt;
 	struct gen_multipath generic_mp;
+	bool fpin_must_reload;
 };
 
 static inline int marginal_path_check_enabled(const struct multipath *mpp)
