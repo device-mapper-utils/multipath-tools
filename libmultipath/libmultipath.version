@@ -297,3 +297,8 @@ LIBMULTIPATH_9.1.1 {
 global:
 	trigger_path_udev_change;
 } LIBMULTIPATH_9.1.0;
+
+LIBMULTIPATH_9.1.2 {
+global:
+	cleanup_mutex;
+} LIBMULTIPATH_9.1.1;

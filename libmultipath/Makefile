@@ -45,6 +45,11 @@ ifneq ($(call check_func,dm_hold_control_dev,/usr/include/libdevmapper.h),0)
 	CFLAGS += -DLIBDM_API_HOLD_CONTROL
 endif
 
+ifneq ($(call check_var,ELS_DTAG_LNK_INTEGRITY,/usr/include/scsi/fc/fc_els.h),0)
+	CFLAGS += -DFPIN_EVENT_HANDLER
+endif
+
+
 OBJS = memory.o parser.o vector.o devmapper.o callout.o \
 	hwtable.o blacklist.o util.o dmparser.o config.o \
 	structs.o discovery.o propsel.o dict.o \
