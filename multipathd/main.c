@@ -988,6 +988,7 @@ ev_add_path (struct path * pp, struct vectors * vecs, int need_do_map)
 	int retries = 3;
 	int start_waiter = 0;
 	int ret;
+	int ro;
 
 	/*
 	 * need path UID to go any further
@@ -1050,6 +1051,11 @@ rescan:
 
 	/* persistent reservation check*/
 	mpath_pr_event_handle(pp);
+
+	/* ro check - if new path is ro, force map to be ro as well */
+	ro = sysfs_get_ro(pp);
+	if (ro == 1)
+		mpp->force_readonly = 1;
 
 	if (!need_do_map)
 		return 0;
