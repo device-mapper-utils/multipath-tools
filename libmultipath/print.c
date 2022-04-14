@@ -1393,6 +1393,39 @@ snprint_multipath_topology_json (char * buff, int len, const struct vectors * ve
 }
 
 static int
+snprint_pcentry (const struct config *conf, char *buff, int len,
+		 const struct pcentry *pce)
+{
+	int i;
+	int fwd = 0;
+	struct keyword *kw;
+	struct keyword *rootkw;
+
+	rootkw = find_keyword(conf->keywords, NULL, "overrides");
+	if (!rootkw || !rootkw->sub)
+		return 0;
+
+	rootkw = find_keyword(conf->keywords, rootkw->sub, "protocol");
+	if (!rootkw)
+		return 0;
+
+	fwd += snprintf(buff + fwd, len - fwd, "\tprotocol {\n");
+	if (fwd >= len)
+		return len;
+
+	iterate_sub_keywords(rootkw, kw, i) {
+		fwd += snprint_keyword(buff + fwd, len - fwd, "\t\t%k %v\n",
+				kw, pce);
+		if (fwd >= len)
+			return len;
+	}
+	fwd += snprintf(buff + fwd, len - fwd, "\t}\n");
+	if (fwd >= len)
+		return len;
+	return fwd;
+}
+
+static int
 snprint_hwentry (const struct config *conf,
 		 char * buff, int len, const struct hwentry * hwe)
 {
@@ -1574,6 +1607,17 @@ static int snprint_overrides(const struct config *conf, char * buff, int len,
 				       kw, NULL);
 		if (fwd >= len)
 			return len;
+	}
+
+	if (overrides->pctable) {
+		struct pcentry *pce;
+
+		vector_foreach_slot(overrides->pctable, pce, i) {
+			fwd += snprint_pcentry(conf, buff + fwd, len - fwd,
+					       pce);
+			if (fwd >= len)
+				return len;
+		}
 	}
 out:
 	fwd += snprintf(buff + fwd, len - fwd, "}\n");

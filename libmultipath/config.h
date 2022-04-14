@@ -41,6 +41,13 @@ enum force_reload_types {
 	FORCE_RELOAD_WEAK,
 };
 
+struct pcentry {
+	int type;
+	int fast_io_fail;
+	unsigned int dev_loss;
+	int eh_deadline;
+};
+
 struct hwentry {
 	char * vendor;
 	char * product;
@@ -86,6 +93,8 @@ struct hwentry {
 	int vpd_vendor_id;
 	int recheck_wwid;
 	char * bl_product;
+
+	vector pctable;
 };
 
 struct mpentry {
@@ -240,6 +249,7 @@ char * get_mpe_wwid (vector mptable, char * alias);
 
 struct hwentry * alloc_hwe (void);
 struct mpentry * alloc_mpe (void);
+struct pcentry * alloc_pce (void);
 
 void free_hwe (struct hwentry * hwe);
 void free_hwtable (vector hwtable);
