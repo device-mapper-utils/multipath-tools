@@ -338,9 +338,6 @@ int setup_map(struct multipath *mpp, char *params, int params_size,
 	select_mode(conf, mpp);
 	select_uid(conf, mpp);
 	select_gid(conf, mpp);
-	select_fast_io_fail(conf, mpp);
-	select_dev_loss(conf, mpp);
-	select_eh_deadline(conf, mpp);
 	select_reservation_key(conf, mpp);
 	select_deferred_remove(conf, mpp);
 	select_marginal_path_err_sample_time(conf, mpp);
@@ -356,7 +353,7 @@ int setup_map(struct multipath *mpp, char *params, int params_size,
 	select_ghost_delay(conf, mpp);
 	select_flush_on_last_del(conf, mpp);
 
-	sysfs_set_scsi_tmo(mpp, conf->checkint);
+	sysfs_set_scsi_tmo(conf, mpp);
 	marginal_pathgroups = conf->marginal_pathgroups;
 	pthread_cleanup_pop(1);
 

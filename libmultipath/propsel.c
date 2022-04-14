@@ -766,51 +766,51 @@ int select_minio(struct config *conf, struct multipath *mp)
 		return select_minio_bio(conf, mp);
 }
 
-int select_fast_io_fail(struct config *conf, struct multipath *mp)
+int select_fast_io_fail(struct config *conf, struct path *pp)
 {
 	const char *origin;
 	char buff[12];
 
-	mp_set_ovr(fast_io_fail);
-	mp_set_hwe(fast_io_fail);
-	mp_set_conf(fast_io_fail);
-	mp_set_default(fast_io_fail, DEFAULT_FAST_IO_FAIL);
+	pp_set_ovr(fast_io_fail);
+	pp_set_hwe(fast_io_fail);
+	pp_set_conf(fast_io_fail);
+	pp_set_default(fast_io_fail, DEFAULT_FAST_IO_FAIL);
 out:
-	print_undef_off_zero(buff, 12, mp->fast_io_fail);
-	condlog(3, "%s: fast_io_fail_tmo = %s %s", mp->alias, buff, origin);
+	print_undef_off_zero(buff, 12, pp->fast_io_fail);
+	condlog(3, "%s: fast_io_fail_tmo = %s %s", pp->dev, buff, origin);
 	return 0;
 }
 
-int select_dev_loss(struct config *conf, struct multipath *mp)
+int select_dev_loss(struct config *conf, struct path *pp)
 {
 	const char *origin;
 	char buff[12];
 
-	mp_set_ovr(dev_loss);
-	mp_set_hwe(dev_loss);
-	mp_set_conf(dev_loss);
-	mp->dev_loss = 0;
+	pp_set_ovr(dev_loss);
+	pp_set_hwe(dev_loss);
+	pp_set_conf(dev_loss);
+	pp->dev_loss = 0;
 	return 0;
 out:
-	print_dev_loss(buff, 12, mp->dev_loss);
-	condlog(3, "%s: dev_loss_tmo = %s %s", mp->alias, buff, origin);
+	print_dev_loss(buff, 12, pp->dev_loss);
+	condlog(3, "%s: dev_loss_tmo = %s %s", pp->dev, buff, origin);
 	return 0;
 }
 
-int select_eh_deadline(struct config *conf, struct multipath *mp)
+int select_eh_deadline(struct config *conf, struct path *pp)
 {
 	const char *origin;
 	char buff[12];
 
-	mp_set_ovr(eh_deadline);
-	mp_set_hwe(eh_deadline);
-	mp_set_conf(eh_deadline);
-	mp->eh_deadline = EH_DEADLINE_UNSET;
+	pp_set_ovr(eh_deadline);
+	pp_set_hwe(eh_deadline);
+	pp_set_conf(eh_deadline);
+	pp->eh_deadline = EH_DEADLINE_UNSET;
 	/* not changing sysfs in default cause, so don't print anything */
 	return 0;
 out:
-	print_undef_off_zero(buff, 12, mp->eh_deadline);
-	condlog(3, "%s: eh_deadline = %s %s", mp->alias, buff, origin);
+	print_undef_off_zero(buff, 12, pp->eh_deadline);
+	condlog(3, "%s: eh_deadline = %s %s", pp->dev, buff, origin);
 	return 0;
 }
 
