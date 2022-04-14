@@ -202,6 +202,7 @@ enum scsi_protocol {
  */
 #define LAST_BUS_PROTOCOL_ID (SYSFS_BUS_SCSI + SCSI_PROTOCOL_UNSPEC)
 unsigned int bus_protocol_id(const struct path *pp);
+extern const char * const protocol_name[];
 
 enum no_undef_states {
 	NU_NO = -1,
