@@ -19,7 +19,17 @@ CFLAGS += $(BIN_CFLAGS) -I$(multipathdir) -I$(mpathpersistdir) \
 LDFLAGS += $(BIN_LDFLAGS)
 LIBDEPS += -L$(multipathdir) -lmultipath -L$(mpathpersistdir) -lmpathpersist \
 	   -L$(mpathcmddir) -lmpathcmd -ludev -ldl -lurcu -lpthread \
-	   -ldevmapper -lreadline
+	   -ldevmapper
+
+ifeq ($(READLINE),libedit)
+CFLAGS += -DUSE_LIBEDIT
+LIBDEPS += -ledit
+endif
+ifeq ($(READLINE),libreadline)
+CFLAGS += -DUSE_LIBREADLINE
+LIBDEPS += -lreadline
+endif
+
 CFLAGS += $(shell $(PKGCONFIG) --modversion liburcu 2>/dev/null | \
 	awk -F. '{ printf("-DURCU_VERSION=0x%06x", 256 * ( 256 * $$1 + $$2) + $$3); }')
 
