@@ -62,6 +62,7 @@ exec_prefix	= $(prefix)
 usr_prefix	= $(prefix)
 bindir		= $(exec_prefix)/usr/sbin
 libudevdir	= $(prefix)/$(SYSTEMDPATH)/udev
+tmpfilesdir	= $(prefix)/$(SYSTEMDPATH)/tmpfiles.d
 udevrulesdir	= $(libudevdir)/rules.d
 multipathdir	= $(TOPDIR)/libmultipath
 man8dir		= $(prefix)/usr/share/man/man8
@@ -79,6 +80,7 @@ libdmmpdir	= $(TOPDIR)/libdmmp
 nvmedir		= $(TOPDIR)/libmultipath/nvme
 includedir	= $(prefix)/usr/include
 pkgconfdir	= $(usrlibdir)/pkgconfig
+runtimedir	= /$(RUN)
 
 GZIP		= gzip -9 -c
 RM		= rm -f
@@ -120,7 +122,7 @@ WARNFLAGS	:= -Werror -Wextra -Wformat=2 $(WFORMATOVERFLOW) -Werror=implicit-int 
 		  $(WNOCLOBBERED) -Werror=cast-qual $(ERROR_DISCARDED_QUALIFIERS) \
 		  -Wstrict-prototypes
 CFLAGS		:= --std=gnu99 $(CFLAGS) $(OPTFLAGS) $(WARNFLAGS) -pipe \
-		   -DBIN_DIR=\"$(bindir)\" -DLIB_STRING=\"${LIB}\" -DRUN_DIR=\"${RUN}\" \
+		   -DBIN_DIR=\"$(bindir)\" -DLIB_STRING=\"${LIB}\" -DRUN_DIR=\"${RUN}\" -DRUNTIME_DIR=\"$(runtimedir)\" \
 		   -MMD -MP
 BIN_CFLAGS	= -fPIE -DPIE
 LIB_CFLAGS	= -fPIC
