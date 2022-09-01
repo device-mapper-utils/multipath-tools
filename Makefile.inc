@@ -55,6 +55,7 @@ exec_prefix	= $(prefix)
 usr_prefix	= $(prefix)
 bindir		= $(exec_prefix)/usr/sbin
 libudevdir	= $(prefix)/$(SYSTEMDPATH)/udev
+tmpfilesdir	= $(prefix)/$(SYSTEMDPATH)/tmpfiles.d
 udevrulesdir	= $(libudevdir)/rules.d
 multipathdir	= $(TOPDIR)/libmultipath
 man8dir		= $(prefix)/usr/share/man/man8
@@ -71,6 +72,7 @@ libdmmpdir	= $(TOPDIR)/libdmmp
 nvmedir		= $(TOPDIR)/libmultipath/nvme
 includedir	= $(prefix)/usr/include
 pkgconfdir	= $(usrlibdir)/pkgconfig
+runtimedir	= /$(RUN)
 
 GZIP		= gzip -9 -c
 RM		= rm -f
@@ -112,7 +114,7 @@ OPTFLAGS	+= -Werror -Wextra -Wstrict-prototypes -Wformat=2 \
 		   -Werror=cast-qual $(ERROR_DISCARDED_QUALIFIERS) \
 		   --param=ssp-buffer-size=4
 
-CFLAGS		:= $(OPTFLAGS) -DBIN_DIR=\"$(bindir)\" -DLIB_STRING=\"${LIB}\" -DRUN_DIR=\"${RUN}\" \
+CFLAGS		:= $(OPTFLAGS) -DBIN_DIR=\"$(bindir)\" -DLIB_STRING=\"${LIB}\" -DRUN_DIR=\"${RUN}\" -DRUNTIME_DIR=\"$(runtimedir)\" \
 		   -MMD -MP $(CFLAGS)
 BIN_CFLAGS	= -fPIE -DPIE
 LIB_CFLAGS	= -fPIC
