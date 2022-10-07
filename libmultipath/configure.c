@@ -296,6 +296,7 @@ static int wait_for_pending_paths(struct multipath *mpp,
 int setup_map(struct multipath *mpp, char **params, struct vectors *vecs)
 {
 	struct pathgroup * pgp;
+	struct path *pp;
 	struct config *conf;
 	int i, n_paths, marginal_pathgroups;
 	char *save_attr;
@@ -311,6 +312,14 @@ int setup_map(struct multipath *mpp, char **params, struct vectors *vecs)
 	if (mpp->disable_queueing && VECTOR_SIZE(mpp->paths) != 0)
 		mpp->disable_queueing = 0;
 
+	/* Force QUEUE_MODE_BIO for maps with nvme:tcp paths */
+	vector_foreach_slot(mpp->paths, pp, i) {
+		if (pp->bus == SYSFS_BUS_NVME &&
+		    pp->sg_id.proto_id == NVME_PROTOCOL_TCP) {
+			mpp->queue_mode = QUEUE_MODE_BIO;
+			break;
+		}
+	}
 	/*
 	 * If this map was created with add_map_without_path(),
 	 * mpp->hwe might not be set yet.
@@ -1191,6 +1200,13 @@ int coalesce_paths (struct vectors *vecs, vector mpvec, char *refwwid,
 			continue;
 		}
 
+		cmpp = find_mp_by_wwid(curmp, pp1->wwid);
+		if (cmpp && cmpp->queue_mode == QUEUE_MODE_RQ &&
+		    pp1->bus == SYSFS_BUS_NVME && pp1->sg_id.proto_id ==
+		    NVME_PROTOCOL_TCP) {
+			orphan_path(pp1, "nvme:tcp path not allowed with request queue_mode multipath device");
+			continue;
+		}
 		/*
 		 * at this point, we know we really got a new mp
 		 */
@@ -1229,7 +1245,6 @@ int coalesce_paths (struct vectors *vecs, vector mpvec, char *refwwid,
 		}
 		verify_paths(mpp);
 
-		cmpp = find_mp_by_wwid(curmp, mpp->wwid);
 		if (cmpp)
 			mpp->queue_mode = cmpp->queue_mode;
 		if (setup_map(mpp, &params, vecs)) {
