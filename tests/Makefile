@@ -33,6 +33,7 @@ ifneq ($(DIO_TEST_DEV),)
 directio-test_FLAGS := -DDIO_TEST_DEV=\"$(DIO_TEST_DEV)\"
 endif
 mpathvalid-test_FLAGS := -I$(mpathvaliddir)
+features-test_FLAGS := -I$(multipathdir)/nvme
 
 # test-specific linker flags
 # XYZ-test_TESTDEPS: test libraries containing __wrap_xyz functions
@@ -64,6 +65,7 @@ ifneq ($(DIO_TEST_DEV),)
 directio-test_LIBDEPS := -laio
 endif
 strbuf-test_OBJDEPS := ../libmultipath/strbuf.o
+features-test_LIBDEPS := -ludev -lpthread
 
 %.o: %.c
 	$(CC) $(CFLAGS) $($*-test_FLAGS) -c -o $@ $<
