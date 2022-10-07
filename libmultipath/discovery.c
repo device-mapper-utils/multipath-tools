@@ -1455,6 +1455,7 @@ nvme_sysfs_pathinfo (struct path * pp, vector hwtable)
 	struct udev_device *parent;
 	const char *attr_path = NULL;
 	const char *attr;
+	int i;
 
 	attr_path = udev_device_get_sysname(pp->udev);
 	if (!attr_path)
@@ -1475,6 +1476,18 @@ nvme_sysfs_pathinfo (struct path * pp, vector hwtable)
 
 	attr = udev_device_get_sysattr_value(parent, "cntlid");
 	pp->sg_id.channel = attr ? atoi(attr) : 0;
+
+	attr = udev_device_get_sysattr_value(parent, "transport");
+	if (attr) {
+		for (i = 0; i < NVME_PROTOCOL_UNSPEC; i++){
+			if (protocol_name[SYSFS_BUS_NVME + i] &&
+			    !strcmp(attr,
+				    protocol_name[SYSFS_BUS_NVME + i] + 5)) {
+				pp->sg_id.proto_id = i;
+				break;
+			}
+		}
+	}
 
 	snprintf(pp->vendor_id, SCSI_VENDOR_SIZE, "NVME");
 	snprintf(pp->product_id, PATH_PRODUCT_SIZE, "%s",
@@ -1727,9 +1740,10 @@ sysfs_pathinfo(struct path * pp, vector hwtable)
 		pp->bus = SYSFS_BUS_SCSI;
 		pp->sg_id.proto_id = SCSI_PROTOCOL_UNSPEC;
 	}
-	if (!strncmp(pp->dev,"nvme", 4))
+	if (!strncmp(pp->dev,"nvme", 4)) {
 		pp->bus = SYSFS_BUS_NVME;
-
+		pp->sg_id.proto_id = NVME_PROTOCOL_UNSPEC;
+	}
 	switch (pp->bus) {
 	case SYSFS_BUS_SCSI:
 		return scsi_sysfs_pathinfo(pp, hwtable);
