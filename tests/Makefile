@@ -29,6 +29,7 @@ endif
 ifneq ($(DIO_TEST_DEV),)
 directio-test_FLAGS := -DDIO_TEST_DEV=\"$(DIO_TEST_DEV)\"
 endif
+features-test_FLAGS := -I$(multipathdir)/nvme
 
 # test-specific linker flags
 # XYZ-test_TESTDEPS: test libraries containing __wrap_xyz functions
@@ -53,6 +54,7 @@ alias-test_LIBDEPS := -lpthread -ldl
 ifneq ($(DIO_TEST_DEV),)
 directio-test_LIBDEPS := -laio
 endif
+features-test_LIBDEPS := -ludev -lpthread
 
 %.o: %.c
 	$(CC) $(CFLAGS) $($*-test_FLAGS) -c -o $@ $<
