@@ -558,7 +558,8 @@ snprint_host_attr (char * buff, size_t len, const struct path * pp, char *attr)
 	const char *value = NULL;
 	int ret;
 
-	if (pp->sg_id.proto_id != SCSI_PROTOCOL_FCP)
+	if (pp->bus != SYSFS_BUS_SCSI ||
+	    pp->sg_id.proto_id != SCSI_PROTOCOL_FCP)
 		return snprintf(buff, len, "[undef]");
 	sprintf(host_id, "host%d", pp->sg_id.host_no);
 	host_dev = udev_device_new_from_subsystem_sysname(udev, "fc_host",
@@ -597,7 +598,8 @@ snprint_tgt_wwpn (char * buff, size_t len, const struct path * pp)
 	const char *value = NULL;
 	int ret;
 
-	if (pp->sg_id.proto_id != SCSI_PROTOCOL_FCP)
+	if (pp->bus != SYSFS_BUS_SCSI ||
+	    pp->sg_id.proto_id != SCSI_PROTOCOL_FCP)
 		return snprintf(buff, len, "[undef]");
 	sprintf(rport_id, "rport-%d:%d-%d",
 		pp->sg_id.host_no, pp->sg_id.channel, pp->sg_id.transport_id);
