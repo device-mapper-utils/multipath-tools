@@ -465,6 +465,16 @@ void free_scandir_result(struct scandir_result *res)
 	FREE(res->di);
 }
 
+void cleanup_free_ptr(void *arg)
+{
+	void **p = arg;
+
+	if (p && *p) {
+		free(*p);
+		*p = NULL;
+	}
+}
+
 void close_fd(void *arg)
 {
 	close((long)arg);

@@ -1102,6 +1102,7 @@ int coalesce_paths (struct vectors * vecs, vector newmp, char * refwwid,
 	uint64_t *size_mismatch_seen;
 	bool map_processed = false;
 	bool no_daemon = false;
+	struct multipath * cmpp;
 
 	/* ignore refwwid if it's empty */
 	if (refwwid && !strlen(refwwid))
@@ -1197,6 +1198,9 @@ int coalesce_paths (struct vectors * vecs, vector newmp, char * refwwid,
 		}
 		verify_paths(mpp, vecs);
 
+		cmpp = find_mp_by_wwid(curmp, mpp->wwid);
+		if (cmpp)
+			mpp->queue_mode = cmpp->queue_mode;
 		params[0] = '\0';
 		if (setup_map(mpp, params, PARAMS_SIZE, vecs)) {
 			remove_map(mpp, vecs, 0);
