@@ -24,6 +24,7 @@ install:
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(bindir)
 	$(INSTALL_PROGRAM) -m 755 $(EXEC) $(DESTDIR)$(bindir)/
 	$(INSTALL_PROGRAM) -m 755 mpathconf $(DESTDIR)$(bindir)/
+	$(INSTALL_PROGRAM) -m 755 mpathcleanup $(DESTDIR)$(bindir)/
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(udevrulesdir)
 	$(INSTALL_PROGRAM) -m 644 11-dm-mpath.rules $(DESTDIR)$(udevrulesdir)
 	$(INSTALL_PROGRAM) -m 644 $(EXEC).rules $(DESTDIR)$(libudevdir)/rules.d/62-multipath.rules
@@ -40,6 +41,7 @@ uninstall:
 	$(RM) $(DESTDIR)$(udevrulesdir)/11-dm-mpath.rules
 	$(RM) $(DESTDIR)$(libudevdir)/rules.d/62-multipath.rules
 	$(RM) $(DESTDIR)$(bindir)/mpathconf
+	$(RM) $(DESTDIR)$(bindir)/mpathcleanup
 	$(RM) $(DESTDIR)$(man8dir)/$(EXEC).8.gz
 	$(RM) $(DESTDIR)$(man5dir)/$(EXEC).conf.5.gz
 	$(RM) $(DESTDIR)$(man8dir)/mpathconf.8.gz
