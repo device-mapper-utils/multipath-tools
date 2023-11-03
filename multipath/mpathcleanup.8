@@ -1,0 +1,24 @@
+.TH MPATHCLEANUP 8 "November 2023" "" "Linux Administrator's Manual"
+.SH NAME
+mpathcleanup - A tool to remove a multipath device and its scsi path devices
+.SH SYNOPSIS
+.B mpathcleanup
+[\fB\-h\fR] [\fB\-\-flush\fR] \fBdevice\fR
+.SH DESCRIPTION
+\fBmpathcleanup\fR is a utility that attempts to remove a multipath device and
+its underlying paths. It only works for multipath devices built on top of scsi
+devices.
+.SH OPTIONS
+.TP
+.B \-\-flush
+Disable queueing on the multipath device and flush the path devices before
+removing.
+.TP
+\fB\-h\fR|\fB\-\-help\fR
+Display help text.
+.SH "SEE ALSO"
+.BR multipath.conf (5),
+.BR multipath (8),
+.BR multipathd (8)
+.SH AUTHOR
+Benjamin Marzinski <bmarzins@redhat.com>

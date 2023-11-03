@@ -19,6 +19,7 @@ $(EXEC): $(OBJS) $(multipathdir)/libmultipath.so $(mpathcmddir)/libmpathcmd.so
 	$(GZIP) $(EXEC).8 > $(EXEC).8.gz
 	$(GZIP) $(EXEC).conf.5 > $(EXEC).conf.5.gz
 	$(GZIP) mpathconf.8 > mpathconf.8.gz
+	$(GZIP) mpathcleanup.8 > mpathcleanup.8.gz
 
 install:
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(bindir)
@@ -35,6 +36,7 @@ install:
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(man5dir)
 	$(INSTALL_PROGRAM) -m 644 $(EXEC).conf.5.gz $(DESTDIR)$(man5dir)
 	$(INSTALL_PROGRAM) -m 644 mpathconf.8.gz $(DESTDIR)$(man8dir)
+	$(INSTALL_PROGRAM) -m 644 mpathcleanup.8.gz $(DESTDIR)$(man8dir)
 
 uninstall:
 	$(RM) $(DESTDIR)$(bindir)/$(EXEC)
@@ -45,6 +47,7 @@ uninstall:
 	$(RM) $(DESTDIR)$(man8dir)/$(EXEC).8.gz
 	$(RM) $(DESTDIR)$(man5dir)/$(EXEC).conf.5.gz
 	$(RM) $(DESTDIR)$(man8dir)/mpathconf.8.gz
+	$(RM) $(DESTDIR)$(man8dir)/mpathcleanup.8.gz
 
 clean: dep_clean
 	$(RM) core *.o $(EXEC) *.gz multipath.rules tmpfiles.conf
