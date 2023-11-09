@@ -743,6 +743,20 @@ The default is: \fB<unset>\fR
 .
 .
 .TP
+.B max_retries
+Specify the maximum number of times the SCSI layer will retry IO commands for
+some types of SCSI errors before returning failure. Setting this can be helpful
+for cases where IO commands hang and timeout. By default, the SCSI layer will
+retry IOs 5 times. Reducing this value will allow multipath to retry the IO
+down another path sooner. Valid values are
+\fB0\fR through \fB5\fR.
+.RS
+.TP
+The default is: \fB<unset>\fR
+.RE
+.
+.
+.TP
 .B bindings_file
 This option is deprecated, and will be removed in a future release.
 The full pathname of the binding file to be used when the user_friendly_names
