@@ -201,6 +201,7 @@ struct config {
 	int skip_delegate;
 	unsigned int sequence_nr;
 	int recheck_wwid;
+	int auto_resize;
 
 	char * multipath_dir;
 	char * selector;
