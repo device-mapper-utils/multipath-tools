@@ -802,7 +802,7 @@ cli_del_maps (void *v, char **reply, int *len, void *data)
 			i--;
 	}
 	/* flush any multipath maps that aren't currently known by multipathd */
-	ret |= dm_flush_maps(0, 0);
+	ret |= dm_flush_maps(0);
 	return ret;
 }
 
