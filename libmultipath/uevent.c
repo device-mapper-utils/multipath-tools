@@ -73,12 +73,13 @@ struct uevent_filter_state {
 
 int is_uevent_busy(void)
 {
-	int empty;
+	int empty, servicing;
 
 	pthread_mutex_lock(uevq_lockp);
 	empty = list_empty(&uevq);
+	servicing = servicing_uev;
 	pthread_mutex_unlock(uevq_lockp);
-	return (!empty || servicing_uev);
+	return (!empty || servicing);
 }
 
 struct uevent * alloc_uevent (void)
