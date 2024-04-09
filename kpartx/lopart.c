@@ -159,7 +159,7 @@ char *find_loop_by_file(const char *filename)
 
 char *find_unused_loop_device(void)
 {
-	char dev[20], *next_loop_dev = NULL;
+	char dev[21], *next_loop_dev = NULL;
 	int fd, next_loop = 0, somedev = 0, someloop = 0, loop_known = 0;
 	struct stat statbuf;
 	struct loop_info loopinfo;
