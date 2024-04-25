@@ -20,4 +20,5 @@ int print_reservation_key(struct strbuf *buff,
 			  struct be64 key, uint8_t flags, int source);
 int print_off_int_undef(struct strbuf *buff, long v);
 int print_auto_resize(struct strbuf *buff, long v);
+int print_flush_on_last_del(struct strbuf *buff, long v);
 #endif /* _DICT_H */
