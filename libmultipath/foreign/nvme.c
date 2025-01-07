@@ -697,6 +697,7 @@ static void _find_controllers(struct context *ctx, struct nvme_map *map)
 		path = _find_path_by_syspath(map,
 					     udev_device_get_syspath(udev));
 		if (path != NULL) {
+			udev_device_unref(udev);
 			path->seen = true;
 			condlog(4, "%s: %s already known",
 				__func__, fn);
@@ -704,8 +705,10 @@ static void _find_controllers(struct context *ctx, struct nvme_map *map)
 		}
 
 		path = calloc(1, sizeof(*path));
-		if (path == NULL)
+		if (path == NULL) {
+			udev_device_unref(udev);
 			continue;
+		}
 
 		path->gen.ops = &nvme_path_ops;
 		path->udev = udev;
