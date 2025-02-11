@@ -82,6 +82,8 @@ includedir	= $(prefix)/usr/include
 pkgconfdir	= $(usrlibdir)/pkgconfig
 runtimedir	= /$(RUN)
 
+abstract_socket := /org/kernel/linux/storage/multipathd
+
 GZIP		= gzip -9 -c
 RM		= rm -f
 LN		= ln -sf
@@ -122,7 +124,7 @@ WARNFLAGS	:= -Werror -Wextra -Wformat=2 $(WFORMATOVERFLOW) -Werror=implicit-int 
 		  $(WNOCLOBBERED) -Werror=cast-qual $(ERROR_DISCARDED_QUALIFIERS) \
 		  -Wstrict-prototypes
 CFLAGS		:= --std=gnu99 $(CFLAGS) $(OPTFLAGS) $(WARNFLAGS) -pipe \
-		   -DBIN_DIR=\"$(bindir)\" -DLIB_STRING=\"${LIB}\" -DRUN_DIR=\"${RUN}\" -DRUNTIME_DIR=\"$(runtimedir)\" \
+		   -DBIN_DIR=\"$(bindir)\" -DLIB_STRING=\"${LIB}\" -DRUN_DIR=\"${RUN}\" -DRUNTIME_DIR=\"$(runtimedir)\" -DDEFAULT_SOCKET=\"$(abstract_socket)\"  \
 		   -MMD -MP
 BIN_CFLAGS	= -fPIE -DPIE
 LIB_CFLAGS	= -fPIC
