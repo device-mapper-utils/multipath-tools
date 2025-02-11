@@ -75,6 +75,8 @@ devmapper_incdir := $(or $(shell $(PKG_CONFIG) --variable=includedir devmapper),
 libudev_incdir	:= $(or $(shell $(PKG_CONFIG) --variable=includedir libudev),/usr/include)
 kernel_incdir	:= /usr/include
 
+abstract_socket := /org/kernel/linux/storage/multipathd
+
 ifeq ($(V),)
 Q		:= @
 # make's "Entering directory" messages are confusing in parallel mode
@@ -116,7 +118,8 @@ CPPFLAGS	:= $(CPPFLAGS) $(D_URCU_VERSION) \
 		   -DBIN_DIR=\"$(bindir)\" -DMULTIPATH_DIR=\"$(TGTDIR)$(plugindir)\" \
 		   -DRUNTIME_DIR=\"$(runtimedir)\" -DCONFIG_DIR=\"$(TGTDIR)$(configdir)\" \
 		   -DDEFAULT_CONFIGFILE=\"$(TGTDIR)$(configfile)\" -DSTATE_DIR=\"$(TGTDIR)$(statedir)\" \
-		   -DEXTRAVERSION=\"$(EXTRAVERSION)\" -MMD -MP
+		   -DEXTRAVERSION=\"$(EXTRAVERSION)\" \
+		   -DDEFAULT_SOCKET=\"$(abstract_socket)\" -MMD -MP
 CFLAGS		:= -std=gnu99 $(CFLAGS) $(OPTFLAGS) $(WARNFLAGS) -pipe
 BIN_CFLAGS	:= -fPIE -DPIE
 LIB_CFLAGS	:= -fPIC
