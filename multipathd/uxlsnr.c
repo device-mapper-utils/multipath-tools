@@ -48,7 +48,8 @@ struct client {
 
 /* Indices for array of poll fds */
 enum {
-	POLLFD_UX = 0,
+	POLLFD_UX1 = 0,
+	POLLFD_UX2,
 	POLLFD_NOTIFY,
 	POLLFDS_BASE,
 };
@@ -168,9 +169,10 @@ void uxsock_cleanup(void *arg)
 {
 	struct client *client_loop;
 	struct client *client_tmp;
-	long ux_sock = (long)arg;
+	long *ux_sock = (long *)arg;
 
-	close(ux_sock);
+	close(ux_sock[0]);
+	close(ux_sock[1]);
 	close(notify_fd);
 	free(watch_config_dir);
 
@@ -332,22 +334,26 @@ static int uxsock_trigger(char *str, char **reply, int *len,
 /*
  * entry point
  */
-void *uxsock_listen(int n_socks, long *ux_sock, void *trigger_data)
+void *uxsock_listen(int n_socks, long *ux_sock_in, void *trigger_data)
 {
 	int rlen;
 	char *inbuf;
 	char *reply;
 	sigset_t mask;
 	int max_pfds = MIN_POLLS + POLLFDS_BASE;
+	long ux_sock[2] = {-1, -1};
 	/* conf->sequence_nr will be 1 when uxsock_listen is first called */
 	unsigned int sequence_nr = 0;
 	struct watch_descriptors wds = { .conf_wd = -1, .dir_wd = -1 };
 
-	if (n_socks != 1) {
-		condlog(0, "uxsock: no socket fds");
+	if (n_socks < 1 || n_socks > 2) {
+		condlog(0, "uxsock: unsupported number of socket fds");
 		exit_daemon();
 		return NULL;
-	}
+	} else if (n_socks == 2)
+		ux_sock[1] = ux_sock_in[1];
+	ux_sock[0] = ux_sock_in[0];
+
 	condlog(3, "uxsock: startup listener");
 	polls = MALLOC(max_pfds * sizeof(*polls));
 	if (!polls) {
@@ -389,8 +395,10 @@ void *uxsock_listen(int n_socks, long *ux_sock, void *trigger_data)
 			}
 		}
 		if (num_clients < MAX_CLIENTS) {
-			polls[POLLFD_UX].fd = ux_sock[0];
-			polls[POLLFD_UX].events = POLLIN;
+			polls[POLLFD_UX1].fd = ux_sock[0];
+			polls[POLLFD_UX1].events = POLLIN;
+			polls[POLLFD_UX2].fd = ux_sock[1];
+			polls[POLLFD_UX2].events = POLLIN;
 		} else {
 			/*
 			 * New clients can't connect, num_clients won't grow
@@ -398,7 +406,7 @@ void *uxsock_listen(int n_socks, long *ux_sock, void *trigger_data)
 			 */
 			condlog(1, "%s: max client connections reached, pausing polling",
 				__func__);
-			polls[POLLFD_UX].fd = -1;
+			polls[POLLFD_UX1].fd = polls[POLLFD_UX2].fd = -1;
 		}
 
 		reset_watch(notify_fd, &wds, &sequence_nr);
@@ -510,8 +518,11 @@ void *uxsock_listen(int n_socks, long *ux_sock, void *trigger_data)
 		handle_signals(true);
 
 		/* see if we got a new client */
-		if (polls[POLLFD_UX].revents & POLLIN) {
+		if (polls[POLLFD_UX1].revents & POLLIN) {
 			new_client(ux_sock[0]);
+		}
+		if (polls[POLLFD_UX2].revents & POLLIN) {
+			new_client(ux_sock[1]);
 		}
 
 		/* handle inotify events on config files */
