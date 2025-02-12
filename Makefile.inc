@@ -125,7 +125,7 @@ WARNFLAGS	:= -Werror -Wextra -Wformat=2 $(WFORMATOVERFLOW) -Werror=implicit-int 
 		  $(WNOCLOBBERED) -Werror=cast-qual $(ERROR_DISCARDED_QUALIFIERS) \
 		  -Wstrict-prototypes
 CFLAGS		:= --std=gnu99 $(CFLAGS) $(OPTFLAGS) $(WARNFLAGS) -pipe \
-		   -DBIN_DIR=\"$(bindir)\" -DLIB_STRING=\"${LIB}\" -DRUN_DIR=\"${RUN}\" -DRUNTIME_DIR=\"$(runtimedir)\" -DDEFAULT_SOCKET=\"$(abstract_socket)\"  \
+		   -DBIN_DIR=\"$(bindir)\" -DLIB_STRING=\"${LIB}\" -DRUN_DIR=\"${RUN}\" -DRUNTIME_DIR=\"$(runtimedir)\" -DABSTRACT_SOCKET=\"$(abstract_socket)\"  -DPATHNAME_SOCKET=\"$(pathname_socket)\" \
 		   -MMD -MP
 BIN_CFLAGS	= -fPIE -DPIE
 LIB_CFLAGS	= -fPIC
