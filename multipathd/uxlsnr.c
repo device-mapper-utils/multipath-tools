@@ -332,7 +332,7 @@ static int uxsock_trigger(char *str, char **reply, int *len,
 /*
  * entry point
  */
-void *uxsock_listen(long ux_sock, void *trigger_data)
+void *uxsock_listen(int n_socks, long *ux_sock, void *trigger_data)
 {
 	int rlen;
 	char *inbuf;
@@ -343,6 +343,11 @@ void *uxsock_listen(long ux_sock, void *trigger_data)
 	unsigned int sequence_nr = 0;
 	struct watch_descriptors wds = { .conf_wd = -1, .dir_wd = -1 };
 
+	if (n_socks != 1) {
+		condlog(0, "uxsock: no socket fds");
+		exit_daemon();
+		return NULL;
+	}
 	condlog(3, "uxsock: startup listener");
 	polls = MALLOC(max_pfds * sizeof(*polls));
 	if (!polls) {
@@ -384,7 +389,7 @@ void *uxsock_listen(long ux_sock, void *trigger_data)
 			}
 		}
 		if (num_clients < MAX_CLIENTS) {
-			polls[POLLFD_UX].fd = ux_sock;
+			polls[POLLFD_UX].fd = ux_sock[0];
 			polls[POLLFD_UX].events = POLLIN;
 		} else {
 			/*
@@ -506,7 +511,7 @@ void *uxsock_listen(long ux_sock, void *trigger_data)
 
 		/* see if we got a new client */
 		if (polls[POLLFD_UX].revents & POLLIN) {
-			new_client(ux_sock);
+			new_client(ux_sock[0]);
 		}
 
 		/* handle inotify events on config files */
