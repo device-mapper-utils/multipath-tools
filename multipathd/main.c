@@ -1698,9 +1698,13 @@ static int get_systemd_sockets(long *ux_sock)
 {
 	int num = sd_listen_fds(0);
 
-	if (num > 1) {
+	if (num > 2) {
 		condlog(3, "sd_listen_fds returned %d fds", num);
 		return -1;
+	} else if (num == 2) {
+		ux_sock[0] = SD_LISTEN_FDS_START + 0;
+		ux_sock[1] = SD_LISTEN_FDS_START + 1;
+		condlog(3, "using fd %ld and %ld from sd_listen_fds", ux_sock[0], ux_sock[1]);
 	} else if (num == 1) {
 		ux_sock[0] = SD_LISTEN_FDS_START + 0;
 		condlog(3, "using fd %ld from sd_listen_fds", ux_sock[0]);
@@ -1718,16 +1722,18 @@ static int get_systemd_sockets(long *ux_sock __attribute__((unused)))
 static void *
 uxlsnrloop (void * ap)
 {
-	long ux_sock;
+	long ux_sock[2] = {-1, -1};
 	int num;
 
 	pthread_cleanup_push(rcu_unregister, NULL);
 	rcu_register_thread();
 
 	num = get_systemd_sockets(&ux_sock);
-	if (num < 1)
-		ux_sock = ux_socket_listen(DEFAULT_SOCKET);
-	if (ux_sock == -1) {
+	if (num < 1) {
+		ux_sock[0] = ux_socket_listen(DEFAULT_SOCKET);
+		num = 1;
+	}
+	if (ux_sock[0] == -1) {
 		condlog(1, "could not create uxsock: %d", errno);
 		exit_daemon();
 		goto out;
@@ -1801,7 +1807,7 @@ uxlsnrloop (void * ap)
 	set_handler_callback(UNSETMARGINAL|MAP, cli_unset_all_marginal);
 
 	umask(077);
-	uxsock_listen(1, &ux_sock, ap);
+	uxsock_listen(num, ux_sock, ap);
 
 out_sock:
 	pthread_cleanup_pop(1); /* uxsock_cleanup */

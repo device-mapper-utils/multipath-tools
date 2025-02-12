@@ -83,6 +83,7 @@ pkgconfdir	= $(usrlibdir)/pkgconfig
 runtimedir	= /$(RUN)
 
 abstract_socket := @/org/kernel/linux/storage/multipathd
+pathname_socket := /run/multipathd.socket
 
 GZIP		= gzip -9 -c
 RM		= rm -f
