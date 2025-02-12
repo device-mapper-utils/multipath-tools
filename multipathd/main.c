@@ -1824,7 +1824,7 @@ uxlsnrloop (void * ap)
 	set_handler_callback(UNSETMARGINAL|MAP, cli_unset_all_marginal);
 
 	umask(077);
-	uxsock_listen(ux_sock, ap);
+	uxsock_listen(1, &ux_sock, ap);
 
 out_sock:
 	pthread_cleanup_pop(1); /* uxsock_cleanup */
