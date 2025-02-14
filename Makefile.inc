@@ -82,7 +82,7 @@ includedir	= $(prefix)/usr/include
 pkgconfdir	= $(usrlibdir)/pkgconfig
 runtimedir	= /$(RUN)
 
-abstract_socket := /org/kernel/linux/storage/multipathd
+abstract_socket := @/org/kernel/linux/storage/multipathd
 
 GZIP		= gzip -9 -c
 RM		= rm -f
