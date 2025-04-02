@@ -396,6 +396,7 @@ struct path {
 	int eh_deadline;
 	bool is_checked;
 	bool can_use_env_uid;
+	bool add_when_online;
 	unsigned int checker_timeout;
 	/* configlet pointers */
 	vector hwe;

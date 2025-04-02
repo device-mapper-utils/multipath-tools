@@ -241,3 +241,8 @@ global:
 local:
 	*;
 };
+
+LIBMULTIPATH_24.0.1 {
+global:
+	can_recheck_wwid;
+} LIBMULTIPATH_24.0.0;
