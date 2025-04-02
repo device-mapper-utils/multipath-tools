@@ -374,6 +374,7 @@ struct path {
 	unsigned int dev_loss;
 	int eh_deadline;
 	bool can_use_env_uid;
+	bool add_when_online;
 	/* configlet pointers */
 	vector hwe;
 	struct gen_path generic_path;

@@ -558,11 +558,44 @@ pr_register_active_paths(struct multipath *mpp)
 	}
 }
 
+static void
+save_offline_paths(const struct multipath *mpp, vector offline_paths)
+{
+	unsigned int i, j;
+	struct path *pp;
+	struct pathgroup *pgp;
+
+	vector_foreach_slot (mpp->pg, pgp, i)
+		vector_foreach_slot (pgp->paths, pp, j)
+			if (pp->initialized == INIT_OK && pp->offline)
+				/* ignore failures storing the paths. */
+				store_path(offline_paths, pp);
+}
+
+static void
+handle_orphaned_offline_paths(vector offline_paths)
+{
+	unsigned int i;
+	struct path *pp;
+
+	vector_foreach_slot (offline_paths, pp, i)
+		if (pp->mpp == NULL)
+			pp->add_when_online = true;
+}
+
+static void
+cleanup_reset_vec(struct _vector **v)
+{
+	vector_reset(*v);
+}
+
 static int
 update_map (struct multipath *mpp, struct vectors *vecs, int new_map)
 {
 	int retries = 3;
 	char *params __attribute__((cleanup(cleanup_charp))) = NULL;
+	struct _vector offline_paths_vec = { .allocated = 0 };
+	vector offline_paths __attribute__((cleanup(cleanup_reset_vec))) = &offline_paths_vec;
 
 retry:
 	condlog(4, "%s: updating new map", mpp->alias);
@@ -599,6 +632,9 @@ fail:
 		return 1;
 	}
 
+	if (new_map && retries < 0)
+		save_offline_paths(mpp, offline_paths);
+
 	if (setup_multipath(vecs, mpp))
 		return 1;
 
@@ -608,6 +644,9 @@ fail:
 		update_map_pr(mpp);
 	if (mpp->prflag == PRFLAG_SET)
 		pr_register_active_paths(mpp);
+
+	if (VECTOR_SIZE(offline_paths) != 0)
+		handle_orphaned_offline_paths(offline_paths);
 
 	if (retries < 0)
 		condlog(0, "%s: failed reload in new map update", mpp->alias);
@@ -2253,7 +2292,8 @@ check_path (struct vectors * vecs, struct path * pp, unsigned int ticks)
 	int ret;
 
 	if (((pp->initialized == INIT_OK ||
-	      pp->initialized == INIT_REQUESTED_UDEV) && !pp->mpp) ||
+	      pp->initialized == INIT_REQUESTED_UDEV) && !pp->mpp &&
+	      !pp->add_when_online) ||
 	    pp->initialized == INIT_REMOVED)
 		return 0;
 
@@ -2367,6 +2407,17 @@ check_path (struct vectors * vecs, struct path * pp, unsigned int ticks)
 				 */
 				pp->checkint = max_checkint;
 			}
+		} else if (pp->initialized == INIT_OK && pp->add_when_online &&
+			   (newstate == PATH_UP || newstate == PATH_GHOST)) {
+			pp->add_when_online = false;
+			if (can_recheck_wwid(pp) &&
+			    check_path_wwid_change(pp)) {
+				condlog(0, "%s: path wwid change detected. Removing", pp->dev);
+				handle_path_wwid_change(pp, vecs);
+				return 0;
+			}
+			ev_add_path(pp, vecs, 1);
+			pp->tick = 1;
 		}
 		return 0;
 	}

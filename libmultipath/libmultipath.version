@@ -313,3 +313,8 @@ global:
 	cleanup_udev_enumerate_ptr;
 	cleanup_udev_device_ptr;
 } LIBMULTIPATH_9.1.3;
+
+LIBMULTIPATH_9.1.5 {
+global:
+	can_recheck_wwid;
+} LIBMULTIPATH_9.1.4;
