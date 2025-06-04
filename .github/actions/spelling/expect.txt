@@ -169,6 +169,7 @@ reconfig
 redhat
 restorequeueing
 retrigger
+RETRYABLE
 rhabarber
 rootprefix
 rootprefixdir
