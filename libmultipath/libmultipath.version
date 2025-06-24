@@ -301,6 +301,7 @@ global:
 LIBMULTIPATH_9.1.2 {
 global:
 	cleanup_mutex;
+	select_skip_kpartx;
 } LIBMULTIPATH_9.1.1;
 
 LIBMULTIPATH_9.1.3 {
