@@ -644,6 +644,8 @@ pr_register_active_paths(struct multipath *mpp)
 
 	vector_foreach_slot (mpp->pg, pgp, i) {
 		vector_foreach_slot (pgp->paths, pp, j) {
+			if (mpp->prflag == PRFLAG_UNSET)
+				return;
 			if ((pp->state == PATH_UP) || (pp->state == PATH_GHOST))
 				mpath_pr_event_handle(pp);
 		}
@@ -732,10 +734,7 @@ fail:
 
 	sync_map_state(mpp);
 
-	if (mpp->prflag != PRFLAG_SET)
-		update_map_pr(mpp, NULL);
-	if (mpp->prflag == PRFLAG_SET)
-		pr_register_active_paths(mpp);
+	pr_register_active_paths(mpp);
 
 	if (VECTOR_SIZE(offline_paths) != 0)
 		handle_orphaned_offline_paths(offline_paths);
@@ -1382,10 +1381,9 @@ rescan:
 	sync_map_state(mpp);
 
 	if (retries >= 0) {
-		if (start_waiter)
-			update_map_pr(mpp, NULL);
-		if (mpp->prflag == PRFLAG_SET && prflag != PRFLAG_SET)
-				pr_register_active_paths(mpp);
+		if ((mpp->prflag == PRFLAG_SET && prflag != PRFLAG_SET) ||
+		    start_waiter)
+			pr_register_active_paths(mpp);
 		condlog(2, "%s [%s]: path added to devmap %s",
 			pp->dev, pp->dev_t, mpp->alias);
 		return 0;
@@ -3028,9 +3026,7 @@ configure (struct vectors * vecs, enum force_reload_types reload_type)
 	vector_foreach_slot(mpvec, mpp, i){
 		if (remember_wwid(mpp->wwid) == 1)
 			trigger_paths_udev_change(mpp, true);
-		update_map_pr(mpp, NULL);
-		if (mpp->prflag == PRFLAG_SET)
-			pr_register_active_paths(mpp);
+		pr_register_active_paths(mpp);
 	}
 
 	/*
