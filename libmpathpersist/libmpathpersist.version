@@ -27,7 +27,7 @@ global:
 local: *;
 };
 
-__LIBMPATHPERSIST_INT_1.0.0 {
+__LIBMPATHPERSIST_INT_2.0.0 {
 	/* Internal use by multipath-tools */
 	dumpHex;
 	mpath_alloc_prin_response;
