@@ -246,3 +246,8 @@ LIBMULTIPATH_24.0.1 {
 global:
 	can_recheck_wwid;
 } LIBMULTIPATH_24.0.0;
+
+LIBMULTIPATH_24.0.2 {
+global:
+	select_skip_kpartx;
+} LIBMULTIPATH_24.0.1;
