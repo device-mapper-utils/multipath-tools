@@ -26,7 +26,6 @@ global:
 	mpath_persistent_reserve_free_vecs;
 	prin_do_scsi_ioctl;
 	prout_do_scsi_ioctl;
-	update_map_pr;
 
 local: *;
 };
