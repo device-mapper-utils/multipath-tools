@@ -187,7 +187,19 @@ int mpath_persistent_reserve_init_vecs(int verbose)
 	return __mpath_persistent_reserve_init_vecs(&curmp, &pathvec, verbose);
 }
 
-static int mpath_get_map(vector curmp, vector pathvec, int fd, char **palias,
+static int
+get_path_info(struct multipath *mpp, vector pathvec)
+{
+	if (update_multipath_table(mpp, pathvec, DI_CHECKER) != DMP_OK ||
+	    update_mpp_paths(mpp, pathvec)) {
+		condlog(0, "error parsing map %s", mpp->wwid);
+		return MPATH_PR_DMMP_ERROR;
+	}
+	extract_hwe_from_path(mpp);
+	return MPATH_PR_SUCCESS ;
+}
+
+static int mpath_get_map(vector curmp, int fd, char **palias,
 			 struct multipath **pmpp)
 {
 	int ret = MPATH_PR_DMMP_ERROR;
@@ -223,12 +235,6 @@ static int mpath_get_map(vector curmp, vector pathvec, int fd, char **palias,
 		goto out;
 	}
 
-	/* get info of all paths from the dm device     */
-	if (get_mpvec(curmp, pathvec, alias)){
-		condlog(0, "%s: failed to get device info.", alias);
-		goto out;
-	}
-
 	mpp = find_mp_by_alias(curmp, alias);
 
 	if (!mpp) {
@@ -254,7 +260,11 @@ static int do_mpath_persistent_reserve_in (vector curmp, vector pathvec,
 	struct multipath *mpp;
 	int ret;
 
-	ret = mpath_get_map(curmp, pathvec, fd, NULL, &mpp);
+	ret = mpath_get_map(curmp, fd, NULL, &mpp);
+	if (ret != MPATH_PR_SUCCESS)
+		return ret;
+
+	ret = get_path_info(mpp, pathvec);
 	if (ret != MPATH_PR_SUCCESS)
 		return ret;
 
@@ -321,18 +331,14 @@ static int do_mpath_persistent_reserve_out(vector curmp, vector pathvec, int fd,
 	bool unregistering, preempting_reservation = false;
 	bool updated_prkey = false;
 
-	ret = mpath_get_map(curmp, pathvec, fd, &alias, &mpp);
+	ret = mpath_get_map(curmp, fd, &alias, &mpp);
 	if (ret != MPATH_PR_SUCCESS)
 		return ret;
 
 	conf = get_multipath_config();
+	mpp->mpe = find_mpe(conf->mptable, mpp->wwid);
 	select_reservation_key(conf, mpp);
-	select_all_tg_pt(conf, mpp);
-	select_skip_kpartx(conf, mpp);
 	put_multipath_config(conf);
-
-	if (rq_servact == MPATH_PROUT_REG_IGN_SA)
-		set_ignored_key(mpp, paramp->key);
 
 	unregistering = (memcmp(&zerokey, paramp->sa_key, 8) == 0);
 	if (mpp->prkey_source == PRKEY_SOURCE_FILE &&
@@ -386,6 +392,22 @@ static int do_mpath_persistent_reserve_out(vector curmp, vector pathvec, int fd,
 			goto out1;
 		}
 	}
+
+	ret = get_path_info(mpp, pathvec);
+	if (ret != MPATH_PR_SUCCESS) {
+		if (updated_prkey)
+			update_prkey_flags(alias, get_be64(oldkey),
+					   mpp->sa_flags);
+		goto out1;
+	}
+
+	conf = get_multipath_config();
+	select_all_tg_pt(conf, mpp);
+	select_skip_kpartx(conf, mpp);
+	put_multipath_config(conf);
+
+	if (rq_servact == MPATH_PROUT_REG_IGN_SA)
+		set_ignored_key(mpp, paramp->key);
 
 	switch(rq_servact)
 	{
@@ -483,39 +505,6 @@ int mpath_persistent_reserve_out ( int fd, int rq_servact, int rq_scope,
 					      rq_scope, rq_type, paramp, noisy);
 	__mpath_persistent_reserve_free_vecs(curmp, pathvec);
 	return ret;
-}
-
-int
-get_mpvec (vector curmp, vector pathvec, char * refwwid)
-{
-	int i;
-	struct multipath *mpp;
-
-	vector_foreach_slot (curmp, mpp, i){
-		/*
-		 * discard out of scope maps
-		 */
-		if (!mpp->alias) {
-			condlog(0, "%s: map with empty alias!", __func__);
-			continue;
-		}
-
-		if (mpp->pg != NULL)
-			/* Already seen this one */
-			continue;
-
-		if (refwwid && strncmp (mpp->alias, refwwid, WWID_SIZE - 1))
-			continue;
-
-		if (update_multipath_table(mpp, pathvec, DI_CHECKER) != DMP_OK ||
-		    update_mpp_paths(mpp, pathvec)) {
-			condlog(1, "error parsing map %s", mpp->wwid);
-			remove_map(mpp, pathvec, curmp);
-			i--;
-		} else
-			extract_hwe_from_path(mpp);
-	}
-	return MPATH_PR_SUCCESS ;
 }
 
 /*
