@@ -1280,7 +1280,7 @@ cli_setprstatus(void * v, struct strbuf *reply, void * data)
 		return -ENODEV;
 
 	if (mpp->prflag != PR_SET) {
-		mpp->prflag = PR_SET;
+		set_pr(mpp);
 		condlog(2, "%s: prflag set", param);
 	}
 
@@ -1301,12 +1301,10 @@ cli_unsetprstatus(void * v, struct strbuf *reply, void * data)
 		return -ENODEV;
 
 	if (mpp->prflag != PR_UNSET) {
-		mpp->prflag = PR_UNSET;
 		condlog(2, "%s: prflag unset", param);
-	}
-	if (mpp->prhold != PR_UNSET) {
-		mpp->prhold = PR_UNSET;
-		condlog(2, "%s: prhold unset (by clearing prflag)", param);
+		if (mpp->prhold != PR_UNSET)
+			condlog(2, "%s: prhold unset (by clearing prflag)", param);
+		unset_pr(mpp);
 	}
 
 	return 0;
