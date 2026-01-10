@@ -1265,6 +1265,22 @@ The default is: \fBno\fR
 .
 .
 .TP
+.B purge_disconnected
+If set to
+.I yes
+, multipathd will automatically remove devices that are in a disconnected state.
+A path is considered disconnected when the TUR (Test Unit Ready) path checker
+receives the SCSI sense code "LOGICAL UNIT NOT SUPPORTED" (sense key 0x5,
+ASC/ASCQ 0x25/0x00). This typically indicates that the LUN has been unmapped
+or is no longer presented by the storage array. This option helps clean up
+stale device entries that would otherwise remain in the system.
+.RS
+.TP
+The default is: \fBno\fR
+.RE
+.
+.
+.TP
 .B disable_changed_wwids
 This option is deprecated and ignored. If the WWID of a path suddenly changes,
 multipathd handles it as if it was removed and then added again.
@@ -1540,6 +1556,8 @@ section:
 .TP
 .B skip_kpartx
 .TP
+.B purge_disconnected
+.TP
 .B max_sectors_kb
 .TP
 .B ghost_delay
@@ -1715,6 +1733,8 @@ section:
 .TP
 .B skip_kpartx
 .TP
+.B purge_disconnected
+.TP
 .B max_sectors_kb
 .TP
 .B ghost_delay
@@ -1800,6 +1820,8 @@ the values are taken from the \fIdevices\fR or \fIdefaults\fR sections:
 .B delay_wait_checks
 .TP
 .B skip_kpartx
+.TP
+.B purge_disconnected
 .TP
 .B max_sectors_kb
 .TP
