@@ -89,6 +89,7 @@ struct hwentry {
 	int marginal_path_err_rate_threshold;
 	int marginal_path_err_recheck_gap_time;
 	int marginal_path_double_failed_time;
+	int purge_disconnected;
 	int skip_kpartx;
 	int max_sectors_kb;
 	int ghost_delay;
@@ -131,6 +132,7 @@ struct mpentry {
 	int marginal_path_err_rate_threshold;
 	int marginal_path_err_recheck_gap_time;
 	int marginal_path_double_failed_time;
+	int purge_disconnected;
 	int skip_kpartx;
 	int max_sectors_kb;
 	int ghost_delay;
@@ -189,6 +191,7 @@ struct config {
 	int marginal_path_err_rate_threshold;
 	int marginal_path_err_recheck_gap_time;
 	int marginal_path_double_failed_time;
+	int purge_disconnected;
 	int uxsock_timeout;
 	int strict_timing;
 	int retrigger_tries;
